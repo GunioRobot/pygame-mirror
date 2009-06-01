@@ -6,18 +6,18 @@
 #any unavailable optional modules in the first optional section.
 
 
-#--StartConfig
-SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
-FONT = -lSDL_ttf
-IMAGE = -lSDL_image
-MIXER = -lSDL_mixer
-SMPEG = -lsmpeg
-PNG = -lpng
-JPEG = -ljpeg
-SCRAP = -lX11
+SDL = -I/Library/Frameworks/SDL.framework/Versions/Current/Headers -Ddarwin -Xlinker "-framework" -Xlinker "SDL" -Xlinker "-F/Library/Frameworks/"
+FONT = -I/Library/Frameworks/SDL_ttf.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "SDL_ttf" -Xlinker "-F/Library/Frameworks/"
+IMAGE = -I/Library/Frameworks/SDL_image.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "SDL_image" -Xlinker "-F/Library/Frameworks/"
+MIXER = -I/Library/Frameworks/SDL_mixer.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "SDL_mixer" -Xlinker "-F/Library/Frameworks/"
+SMPEG = -I/Library/Frameworks/smpeg.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "smpeg" -Xlinker "-F/Library/Frameworks/"
+PNG = -I/usr/local/include -L/opt/local/lib  -lpng
+JPEG = -I/usr/local/include -L/opt/local/lib  -ljpeg
+SCRAP = -I.
 PORTMIDI = -lportmidi
-PORTTIME = -lporttime
-#--EndConfig
+PORTTIME = -I/System/Library/Frameworks/CoreMidi.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "CoreMidi" -Xlinker "-F/System/Library/Frameworks/"
+COCOA = -I/System/Library/Frameworks/Cocoa.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "Cocoa" -Xlinker "-F/System/Library/Frameworks/"
+QUICKTIME = -I/System/Library/Frameworks/QuickTime.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuickTime" -Xlinker "-F/System/Library/Frameworks/"
 
 #DEBUG = -C-W -C-Wall
 DEBUG = 
@@ -33,10 +33,10 @@ mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 _numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
 _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
-scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
+#scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 #_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
-_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
-pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
+#_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
+#pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 GFX = src/SDL_gfx/SDL_gfxPrimitives.c 
 #GFX = src/SDL_gfx/SDL_gfxBlitFunc.c src/SDL_gfx/SDL_gfxPrimitives.c 
@@ -75,3 +75,5 @@ bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 _arraysurfarray src/_arraysurfarray.c $(SDL) $(DEBUG)
 
+#This file defines platform specific modules for mac os x
+sdlmain_osx src/sdlmain_osx.m $(SDL) $(DEBUG)

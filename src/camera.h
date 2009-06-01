@@ -41,8 +41,9 @@
 
     #include <linux/videodev.h>
     #include <linux/videodev2.h>
-#elif define(__APPLE__)
-
+#elif defined(__APPLE__)
+    //#import <Cocoa/Cocoa.h>
+    #import <QuickTime/QuickTime.h>
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -56,14 +57,12 @@
 #define CAM_V4L 1
 #define CAM_V4L2 2
 
-struct buffer 
-{
+struct buffer {
     void * start;
     size_t length;
 };
 
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     char* device_name;
     int camera_type;
@@ -117,7 +116,8 @@ int v4l2_open_device (PyCameraObject* self);
 int v4l_open_device (PyCameraObject* self);
 int v4l_init_device(PyCameraObject* self);
 int v4l_start_capturing(PyCameraObject* self);
-#elif define(__APPLE__)
+#elif defined(__APPLE__)
+/* internal functions specific to mac */
 char** mac_list_cameras(int* num_devices);
 int mac_open_device (PyCameraObject* self);
 int mac_init_device(PyCameraObject* self);

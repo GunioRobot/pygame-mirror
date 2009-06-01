@@ -96,6 +96,8 @@ DEPS = [
     Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
+    FrameworkDependency('COCOA', 'Cocoa.h', 'Cocoa', 'Cocoa'),
+    FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
 ]
 
 

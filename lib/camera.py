@@ -1,7 +1,7 @@
 
 _is_init = 0
 
-
+print "test"
 
 def init():
     global list_cameras, Camera, colorspace, _is_init
@@ -22,7 +22,7 @@ def init():
     elif "darwin" in sys.platform:
         use__camera = True
     else:
-        use_opencv = True
+        use_opencv = False #TODO stel in als True
 
 
 
@@ -99,6 +99,7 @@ class Camera:
         """
         """
         _check_init()
+        print "hoi"
         raise NotImplementedError()
 
     def set_resolution(self, width, height):

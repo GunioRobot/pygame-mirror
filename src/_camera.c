@@ -62,8 +62,7 @@ PyObject* camera_get_raw(PyCameraObject* self);
  */
 
 /* colorspace() - Surface colorspace conversion */
-PyObject* surf_colorspace (PyObject* self, PyObject* arg)
-{
+PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
     PyObject *surfobj, *surfobj2;
     SDL_Surface* surf, *newsurf;
     char* color;
@@ -125,9 +124,8 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg)
 }
 
 /* list_cameras() - lists cameras available on the computer */
-PyObject* list_cameras (PyObject* self, PyObject* arg)
-{
-#if defined(__unix__)
+PyObject* list_cameras (PyObject* self, PyObject* arg) {
+#if defined(__unix__) || defined (__APPLE__)
     PyObject* ret_list;
     PyObject* string;
     char** devices;
@@ -138,8 +136,12 @@ PyObject* list_cameras (PyObject* self, PyObject* arg)
     ret_list = PyList_New (0);
     if (!ret_list)
         return NULL;
-
+    
+    #if defined(__unix__)
     devices = v4l2_list_cameras(&num_devices);
+    # elif defined(__APPLE__)
+    devices = mac_list_cameras(&num_devices);
+    # endif
     
     for(i = 0; i < num_devices; i++) {
         string = PyString_FromString(devices[i]);
@@ -150,17 +152,13 @@ PyObject* list_cameras (PyObject* self, PyObject* arg)
     free(devices);
     
     return ret_list;
-#elif defined(__APPLE__)
-    /* Hier komt apple gedoe... */
-    Py_RETURN_NONE;
 #else
 	Py_RETURN_NONE;
 #endif
 }
 
 /* start() - opens, inits, and starts capturing on the camera */
-PyObject* camera_start (PyCameraObject* self)
-{
+PyObject* camera_start (PyCameraObject* self) {
 #if defined(__unix__)
     if (v4l2_open_device(self) == 0) {
         if (v4l_open_device(self) == 0) {
@@ -188,6 +186,11 @@ PyObject* camera_start (PyCameraObject* self)
             return NULL;
         }
     }
+#elif defined(__APPLE__)
+    if (mac_open_device(self) == 0) {
+        return NULL;
+    }
+    return NULL;
 #endif
     Py_RETURN_NONE;
 }

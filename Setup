@@ -16,6 +16,8 @@ JPEG = -I/usr/local/include -L/opt/local/lib  -ljpeg
 SCRAP = -I.
 PORTMIDI = -lportmidi
 PORTTIME = -I/System/Library/Frameworks/CoreMidi.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "CoreMidi" -Xlinker "-F/System/Library/Frameworks/"
+COCOA = -I/System/Library/Frameworks/Cocoa.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "Cocoa" -Xlinker "-F/System/Library/Frameworks/"
+QUICKTIME = -I/System/Library/Frameworks/QuickTime.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuickTime" -Xlinker "-F/System/Library/Frameworks/"
 
 #DEBUG = -C-W -C-Wall
 DEBUG = 
@@ -32,7 +34,8 @@ _numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
 _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 #scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
-_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
+#_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
+_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
 #pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 GFX = src/SDL_gfx/SDL_gfxPrimitives.c 

@@ -5,7 +5,7 @@
 //  Copyright (c) 2009 . All rights reserved.
 //
 
-#import "camera_mac.h"
+#import "camera.h"
 
 /* 
  * return: an array of the available cameras ids.
@@ -47,11 +47,12 @@ char** mac_list_cameras(int* num_cameras) {
         num++;
     }
     printf("Hoi 8\n");
+    printf("cameras: %d\n", cameras[0]);
     return cameras;
 }
 
-/*
 int mac_open_device (PyCameraObject* self) {
+    printf("open\n");
     ComponentInstance instance = OpenComponent((Component) atoi(self->device_name));
     if (instance == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot open '%s'", self->device_name);
@@ -65,6 +66,7 @@ int mac_init_device(PyCameraObject* self) {
 }
 
 int mac_close_device (PyCameraObject* self) {
+    //CloseComponent()
     return 0;
 }
 
@@ -76,7 +78,7 @@ int mac_stop_capturing (PyCameraObject* self) {
     return 0;
 }
 
-*/
+#if 1==0
 
 int main(int argc, const char *argv[]) {
     printf("Hoi 0\n");
@@ -91,3 +93,5 @@ int main(int argc, const char *argv[]) {
     
     return 0;
 }
+
+# endif
