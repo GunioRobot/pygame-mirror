@@ -43,7 +43,9 @@
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
     //#import <Cocoa/Cocoa.h>
+    //#import <Foundation/Foundation.h>
     #import <QuickTime/QuickTime.h>
+    #import <QuickTime/Movies.h>
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -62,6 +64,7 @@ struct buffer {
     size_t length;
 };
 
+#if defined(__unix__)
 typedef struct {
     PyObject_HEAD
     char* device_name;
@@ -78,6 +81,21 @@ typedef struct {
     int brightness;
     int fd;
 } PyCameraObject;
+#elif defined(__APPLE__)
+typedef struct {
+    PyObject_HEAD
+    char* device_name;
+    SeqGrabComponent component;
+    SGChannel channel;
+    GWorldPtr gWorld;
+    Rect boundsRect;
+    //ImageSequence decompressionSequence;
+    //TimeScale timeScale;
+    //TimeValue lastTime;
+    //NSTimeInterval startTime;
+    //NSTimer *frameTimer;
+} PyCameraObject;
+#endif
 
 /* internal functions for colorspace conversion */
 void colorspace (SDL_Surface *src, SDL_Surface *dst, int cspace);

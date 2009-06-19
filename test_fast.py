@@ -2,8 +2,9 @@ import pygame
 from pygame import camera
 
 camera.init()
-print camera.list_cameras()
-c = camera.Camera("")
+l = camera.list_cameras()
+print l
+c = camera.Camera(l[0])
 print c
 c.start()
 print c

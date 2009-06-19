@@ -35,7 +35,7 @@ _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 #scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 #_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
-#_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
+_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
 #pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 GFX = src/SDL_gfx/SDL_gfxPrimitives.c 
