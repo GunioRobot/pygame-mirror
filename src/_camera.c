@@ -187,7 +187,7 @@ PyObject* camera_start (PyCameraObject* self) {
         }
     }
 #elif defined(__APPLE__)
-    if (mac_open_device(self) == 0  && mac_init_device(self) == 0 && mac_start_capturing(self) == 0) {
+    if (! (mac_open_device(self) == 1 && mac_init_device(self) == 1 && mac_start_capturing(self) == 1)) {
         mac_close_device(self);
         return NULL;
     }
