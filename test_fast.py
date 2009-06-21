@@ -1,4 +1,4 @@
-import pygame
+import time, pygame
 from pygame import camera
 
 camera.init()
@@ -7,4 +7,5 @@ print l
 c = camera.Camera(l[0])
 print c
 c.start()
+time.sleep(5)
 print c

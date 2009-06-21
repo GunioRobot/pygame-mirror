@@ -143,4 +143,6 @@ int mac_close_device (PyCameraObject* self);
 
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
+int sg_data_proc(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+    TimeValue time, short writeType, long refCon);
 #endif

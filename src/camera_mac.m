@@ -59,6 +59,12 @@ int mac_open_device (PyCameraObject* self) {
     }
     self->component = component;
     
+    printf("helper: done...\n");
+    return 1;
+}
+
+/* Make the Camera object ready for capturing images. */
+int mac_init_device(PyCameraObject* self) {
     printf("helper: init sqc\n");
     // Initialize sequence grabber component
     theErr = SGInitialize(component);
@@ -83,12 +89,62 @@ int mac_open_device (PyCameraObject* self) {
         return 0;
     }
     
-    printf("helper: done...\n");
-    return 1;
-}
+    printf("helper: set channel bounds \n");
+    // Create sequence grabber video channel
+    theErr = SGSetChannelBounds(component, &self->boundsRect); //TODO find out why it allways returns an error (-32766)
+    if (theErr != noErr) {
+        NSLog(@"boundsRect=(%d, %d, %d, %d)", self->boundsRect.top, self->boundsRect.left, self->boundsRect.bottom, self->boundsRect.right);
+        NSLog(@"SGSetChannelBounds() returned %ld", theErr);
+        //PyErr_Format(PyExc_SystemError, "Cannot set bounds of Rect");
+        //return 0;
+    }
+    
+    // Create the GWorld
+    theErr = QTNewGWorld(&self->gWorld, k32ARGBPixelFormat, &self->boundsRect, 0, NULL, 0);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot create gWord");
+        return 0;
+    }
+    // Lock the pixmap
+    if (!LockPixels(GetPortPixMap(self->gWorld))) {
+        PyErr_Format(PyExc_SystemError, "Could not lock pixels");
+        return 0;
+    }
 
-/* Make the Camera object ready for capturing images. */
-int mac_init_device(PyCameraObject* self) {
+    // Set GWorld
+    theErr = SGSetGWorld(component, self->gWorld, GetMainDevice());
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Could not set gWord");
+        return 0;
+    }
+
+    // Set the channel's bounds
+    theErr = SGSetChannelBounds(self->channel, &self->boundsRect);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot set channel bounds");
+        return 0;
+    }
+
+    // Set the channel usage to record
+    theErr = SGSetChannelUsage(self->channel, seqGrabRecord);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
+        return 0;
+    }
+
+    // Set data proc
+    theErr = SGSetDataProc(component, NewSGDataUPP(&sg_data_proc), (long) self);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
+        return 0;
+    }
+
+    // Prepare Sequence Grabber to record.
+    theErr = SGPrepare(component, false, true);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
+        return 0;
+    }
     return 1;
 }
 
@@ -132,6 +188,12 @@ int mac_start_capturing(PyCameraObject* self) {
 
 int mac_stop_capturing (PyCameraObject* self) {
     return 0;
+}
+/* TODO: leg uit */
+int sg_data_proc(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+TimeValue time, short writeType, long refCon) {
+    printf("helper: sg_data_proc recall fun...\n");
+    return 1;                 
 }
 
 #if 1==0
