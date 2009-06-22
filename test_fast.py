@@ -8,4 +8,5 @@ c = camera.Camera(l[0])
 print c
 c.start()
 time.sleep(5)
+c.stop()
 print c

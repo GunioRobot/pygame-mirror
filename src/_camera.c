@@ -204,6 +204,11 @@ PyObject* camera_stop (PyCameraObject* self) {
         return NULL;
     if (v4l2_close_device(self) == 0)
         return NULL;
+#elif defined(__APPLE__)
+    if (mac_stop_capturing(self) == 0)
+        return NULL;
+    if (mac_close_device(self) == 0)
+        return NULL;
 #endif
     Py_RETURN_NONE;
 }

@@ -5,6 +5,8 @@
 //  Copyright (c) 2009 . All rights reserved.
 //
 
+// TODO: memory management in open, init and close
+
 #import "camera.h"
 
 /* 
@@ -159,10 +161,11 @@ int mac_close_device (PyCameraObject* self) {
        ComponentResult theErr;
 
     // End decompression sequence
-   	/*if (self->decompressionSequence) {
+   	if (self->decompressionSequence) {
    		theErr = CDSequenceEnd(self->decompressionSequence);
    		if (theErr != noErr) {
-   			NSLog(@"CDSequenceEnd() returned %ld", theErr);
+   		    PyErr_Format(PyExc_SystemError, "Cannot end decompression sequence");
+            return 0;
    		}
    		self->decompressionSequence = 0;
    	}
@@ -171,7 +174,8 @@ int mac_close_device (PyCameraObject* self) {
    	if (self->component) {
    		theErr = CloseComponent(self->component);
    		if (theErr != noErr) {
-   			NSLog(@"CloseComponent() returned %ld", theErr);
+   			PyErr_Format(PyExc_SystemError, "Cannot close sequence grabber component");
+            return 0;
    		}
    		self->component = NULL;
    	}
@@ -180,8 +184,8 @@ int mac_close_device (PyCameraObject* self) {
    	if (self->gWorld) {
    		DisposeGWorld(self->gWorld);
    		self->gWorld = NULL;
-   	} */
-    return 0;
+   	}
+    return 1;
 }
 
 int mac_start_capturing(PyCameraObject* self) {
@@ -189,7 +193,7 @@ int mac_start_capturing(PyCameraObject* self) {
 }
 
 int mac_stop_capturing (PyCameraObject* self) {
-    return 0;
+    return 1;
 }
 /* TODO: leg uit */
 int sg_data_proc(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
