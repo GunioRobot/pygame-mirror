@@ -161,14 +161,14 @@ int mac_close_device (PyCameraObject* self) {
        ComponentResult theErr;
 
     // End decompression sequence
-   	if (self->decompressionSequence) {
+   	/*if (self->decompressionSequence) {
    		theErr = CDSequenceEnd(self->decompressionSequence);
    		if (theErr != noErr) {
    		    PyErr_Format(PyExc_SystemError, "Cannot end decompression sequence");
             return 0;
    		}
    		self->decompressionSequence = 0;
-   	}
+   	}*/
 
     // Close sequence grabber component
    	if (self->component) {

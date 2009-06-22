@@ -9,4 +9,5 @@ print c
 c.start()
 time.sleep(5)
 c.stop()
+time.sleep(3)
 print c
