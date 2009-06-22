@@ -189,6 +189,25 @@ int mac_close_device (PyCameraObject* self) {
 }
 
 int mac_start_capturing(PyCameraObject* self) {
+    OSErr theErr;
+    
+    // Start recording
+    theErr = SGStartRecord(self->component);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot start recording");
+        return 0;
+    }
+/*
+	startTime = [NSDate timeIntervalSinceReferenceDate];
+
+    // Set up decompression sequence (camera -> GWorld)
+    [self _setupDecompression];
+
+    // Start frame timer
+    frameTimer = [[NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(_sequenceGrabberIdle) userInfo:nil repeats:YES] retain];
+
+    [self retain]; // Matches autorelease in -stop
+*/
     return 1;
 }
 

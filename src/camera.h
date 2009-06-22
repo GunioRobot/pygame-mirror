@@ -84,11 +84,11 @@ typedef struct {
 #elif defined(__APPLE__)
 typedef struct {
     PyObject_HEAD
-    char* device_name;
-    SeqGrabComponent component;
-    SGChannel channel;
-    GWorldPtr gWorld;
-    Rect boundsRect;
+    char* device_name;              // unieke name of the device
+    SeqGrabComponent component;     // A type used by the Sequence Grabber API
+    SGChannel channel;              // Channel of the Sequence Grabber
+    GWorldPtr gWorld;               // Pointer to the struct that holds the data of the captured image
+    Rect boundsRect;                // bounds of the image frame
     //ImageSequence decompressionSequence;
     //TimeScale timeScale;
     //TimeValue lastTime;

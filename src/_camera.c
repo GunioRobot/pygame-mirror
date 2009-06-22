@@ -271,7 +271,7 @@ PyObject* camera_get_size (PyCameraObject* self) {
 #if defined(__unix__)
     return Py_BuildValue ("(ii)", self->width, self->height);
 #elif defined(__APPLE__)
-    Py_RETURN_NONE;
+    return Py_BuildValue ("(ii)", self->boundsRect.right, self->boundsRect.bottom);
 #endif
     Py_RETURN_NONE;
 }
