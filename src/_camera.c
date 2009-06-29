@@ -1326,19 +1326,16 @@ PyMethodDef cameraobj_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-void camera_dealloc (PyObject* self)
-{
+void camera_dealloc (PyObject* self) {
     free(((PyCameraObject*) self)->device_name);
     PyObject_DEL (self);
 }
 
-PyObject* camera_getattr(PyObject* self, char* attrname)
-{
+PyObject* camera_getattr(PyObject* self, char* attrname) {
     return Py_FindMethod(cameraobj_builtins, self, attrname);
 }
 
-PyTypeObject PyCamera_Type =
-{
+PyTypeObject PyCamera_Type = {
     PyObject_HEAD_INIT(NULL)
     0,
     "Camera",

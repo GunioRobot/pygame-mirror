@@ -149,6 +149,36 @@ int mac_init_device(PyCameraObject* self) {
         PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
         return 0;
     }
+    
+    ComponentResult result;
+
+    // test
+    ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
+    result = SGGetChannelSampleDescription(self->channel, (Handle)imageDesc);
+    if (result != noErr) {
+        NSLog(@"SGGetChannelSampleDescription() returned %ld", theErr);
+        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
+        return 0;
+    }
+
+    Rect sourceRect;
+    sourceRect.top = 0;
+    sourceRect.left = 0;
+    sourceRect.right = (**imageDesc).width;
+    sourceRect.bottom = (**imageDesc).height;
+
+    MatrixRecord scaleMatrix;
+    RectMatrix(&scaleMatrix, &sourceRect, &self->boundsRect);
+
+    result = DecompressSequenceBegin(&self->decompressionSequence, imageDesc, self->gWorld, NULL, NULL, &scaleMatrix, srcCopy, NULL, 0, codecNormalQuality, bestSpeedCodec);
+    if (result != noErr) {
+        NSLog(@"DecompressionSequenceBegin() returned %ld", theErr);
+        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
+        return 0;
+    }
+
+    DisposeHandle((Handle)imageDesc);
+    
     return 1;
 }
 
@@ -197,9 +227,9 @@ int mac_start_capturing(PyCameraObject* self) {
         PyErr_Format(PyExc_SystemError, "Cannot start recording");
         return 0;
     }
-/*
-	startTime = [NSDate timeIntervalSinceReferenceDate];
 
+//	startTime = [NSDate timeIntervalSinceReferenceDate];
+/*
     // Set up decompression sequence (camera -> GWorld)
     [self _setupDecompression];
 
@@ -215,9 +245,22 @@ int mac_stop_capturing (PyCameraObject* self) {
     return 1;
 }
 /* TODO: leg uit */
-int sg_data_proc(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+int sg_data_proc(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
     printf("helper: sg_data_proc recall fun...\n");
+    
+    //CSGCamera *camera = (CSGCamera *)refCon;
+    ComponentResult theErr;
+    
+    if (self->gWorld) {
+        CodecFlags ignore;
+        theErr = DecompressSequenceFrameS(self->decompressionSequence, data, dataLength, 0, &ignore, NULL);
+        if (theErr != noErr) {
+            NSLog(@"DecompressSequenceFrameS() returned %ld", theErr);
+            return theErr;
+        }
+    }
+    
     return 1;                 
 }
 

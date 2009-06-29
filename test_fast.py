@@ -1,13 +1,23 @@
-import time, pygame
-from pygame import camera
+import time
+import pygame
+import pygame.camera
 
-camera.init()
-l = camera.list_cameras()
-print l
-c = camera.Camera(l[0])
-print c
-c.start()
-time.sleep(5)
-c.stop()
-time.sleep(3)
-print c
+if __name__ == '__main__':
+    pygame.init()
+    pygame.camera.init()
+    
+    l = pygame.camera.list_cameras()
+    for c in l:
+        print c
+    
+    c = pygame.camera.Camera(l[0])
+    print c
+    
+    c.start()
+    print 'camera started...'
+    time.sleep(5)
+    c.stop()
+    print 'camera stopped...'
+    time.sleep(3)
+    
+    print c

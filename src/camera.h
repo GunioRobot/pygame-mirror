@@ -89,7 +89,7 @@ typedef struct {
     SGChannel channel;              // Channel of the Sequence Grabber
     GWorldPtr gWorld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
-    //ImageSequence decompressionSequence;
+    ImageSequence decompressionSequence;
     //TimeScale timeScale;
     //TimeValue lastTime;
     //NSTimeInterval startTime;
@@ -143,6 +143,6 @@ int mac_close_device (PyCameraObject* self);
 
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
-int sg_data_proc(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+int sg_data_proc(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
     TimeValue time, short writeType, long refCon);
 #endif
