@@ -244,8 +244,9 @@ int mac_start_capturing(PyCameraObject* self) {
 int mac_stop_capturing (PyCameraObject* self) {
     return 1;
 }
+
 /* TODO: leg uit */
-int sg_data_proc(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
     printf("helper: sg_data_proc recall fun...\n");
     
