@@ -10,14 +10,21 @@ if __name__ == '__main__':
     for c in l:
         print c
     
+    size = (640, 480)
+    display = pygame.display.set_mode(size, 0)
+    snapshot = pygame.surface.Surface(size, 0, display)
     c = pygame.camera.Camera(l[0])
     print c
     
     c.start()
     print 'camera started...'
-    time.sleep(5)
+    time.sleep(2)
+    print '======================================='
+    snapshot = c.get_image(snapshot)
+    print snapshot
+    print '======================================='
     c.stop()
     print 'camera stopped...'
-    time.sleep(3)
+    time.sleep(2)
     
     print c

@@ -137,7 +137,7 @@ int mac_init_device(PyCameraObject* self) {
     }
 
     // Set data proc
-    theErr = SGSetDataProc(self->component, NewSGDataUPP(&sg_data_proc), (long) self);
+    theErr = SGSetDataProc(self->component, NewSGDataUPP(&mac_gworld_to_surface), (long) self);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
         return 0;
@@ -245,6 +245,11 @@ int mac_stop_capturing (PyCameraObject* self) {
     return 1;
 }
 
+int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
+    
+    return 1;
+}
+
 /* TODO: leg uit */
 int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
@@ -262,7 +267,12 @@ TimeValue time, short writeType, long refCon) {
         }
     }
     
-    return 1;                 
+    return 1;
+}
+
+int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
+    
+    return 1;
 }
 
 #if 1==0
