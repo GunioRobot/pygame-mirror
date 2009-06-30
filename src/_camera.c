@@ -324,7 +324,39 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
         return PySurface_New (surf);
     }
 #elif defined(__APPLE__)
-    Py_RETURN_NONE;
+        SDL_Surface* surf = NULL;
+        PyObject *surfobj = NULL;
+
+        if (!PyArg_ParseTuple (arg, "|O!", &PySurface_Type, &surfobj))
+            return NULL;
+
+        if (!surfobj) {
+            surf = SDL_CreateRGBSurface (0, self->boundsRect.width, self->boundsRect.height, 32, 0xFF<<16,  //bij linux is het 24
+                                     0xFF<<8, 0xFF, 0);
+        } else {
+            surf = PySurface_AsSurface (surfobj);
+        }
+
+        if (!surf)
+            return NULL;
+
+        if (surf->w != self->width || surf->h != self->height) {
+            return RAISE (PyExc_ValueError, 
+                          "Destination surface not the correct width or height.");
+        }
+        Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
+        if (!mac_read_frame(self, surf))
+            return NULL;
+        Py_END_ALLOW_THREADS;
+        if (!surf)
+            return NULL;
+
+        if (surfobj) {
+            Py_INCREF (surfobj);
+            return surfobj;
+        } else {
+            return PySurface_New (surf);
+        }
 #endif
     Py_RETURN_NONE;
 }
