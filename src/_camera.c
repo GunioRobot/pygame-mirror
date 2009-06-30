@@ -331,7 +331,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             return NULL;
 
         if (!surfobj) {
-            surf = SDL_CreateRGBSurface (0, self->boundsRect.width, self->boundsRect.height, 32, 0xFF<<16,  //bij linux is het 24
+            surf = SDL_CreateRGBSurface (0, self->boundsRect.right, self->boundsRect.bottom, 32, 0xFF<<16,  //bij linux is het 24
                                      0xFF<<8, 0xFF, 0);
         } else {
             surf = PySurface_AsSurface (surfobj);
@@ -340,7 +340,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
         if (!surf)
             return NULL;
 
-        if (surf->w != self->width || surf->h != self->height) {
+        if (surf->w != self->boundsRect.right || surf->h != self->boundsRect.bottom) {
             return RAISE (PyExc_ValueError, 
                           "Destination surface not the correct width or height.");
         }
