@@ -22,7 +22,9 @@ if __name__ == '__main__':
     print '======================================='
     snapshot = c.get_image(snapshot)
     print snapshot
+    display.blit(snapshot, (0,0))
     print '======================================='
+    time.sleep(2)
     c.stop()
     print 'camera stopped...'
     time.sleep(2)
