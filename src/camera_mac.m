@@ -246,7 +246,7 @@ int mac_stop_capturing (PyCameraObject* self) {
 }
 
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
-    
+    mac_que_frame(self, )
     return 1;
 }
 
@@ -273,22 +273,6 @@ TimeValue time, short writeType, long refCon) {
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     
     return 1;
-}
-
-#if 1==0
-
-int main(int argc, const char *argv[]) {
-    printf("Hoi 0\n");
-    int aantal;
-    char** cameras = mac_list_cameras(&aantal);
-    printf("cameras: %d\n", cameras[0]);
-    
-    printf("Hoi 9\n");
-    ComponentInstance instance = OpenComponent((Component) atoi(cameras[0]));
-    printf("Hoi 10\n");
-    sleep(60);
-    
-    return 0;
 }
 
 # endif
