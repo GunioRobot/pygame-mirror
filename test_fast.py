@@ -1,21 +1,34 @@
 import time
 import pygame
 import pygame.camera
+from pygame.locals import *
 
 if __name__ == '__main__':
     pygame.init()
     pygame.camera.init()
     
-    l = pygame.camera.list_cameras()
-    for c in l:
-        print c
-    
     size = (640, 480)
     display = pygame.display.set_mode(size, 0)
     snapshot = pygame.surface.Surface(size, 0, display)
-    c = pygame.camera.Camera(l[0])
-    print c
+    cameras = pygame.camera.list_cameras()
+    c = pygame.camera.Camera(cameras[0])
+    c.start()
+
+    going = True
+    while going:
+        events = pygame.event.get()
+        for e in events:
+            if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
+                going = False
+        
+        print 'get image begin'
+        snapshot = c.get_image(snapshot)
+        print 'get image stop'
+        display.blit(snapshot, (0, 0))
+    c.stop()
     
+
+def stuff():
     c.start()
     print 'camera started...'
     time.sleep(2)

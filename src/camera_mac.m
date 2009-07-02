@@ -97,8 +97,7 @@ int mac_init_device(PyCameraObject* self) {
     // Create sequence grabber video channel
     theErr = SGSetChannelBounds(self->component, &self->boundsRect); //TODO find out why it allways returns an error (-32766)
     if (theErr != noErr) {
-        NSLog(@"boundsRect=(%d, %d, %d, %d)", self->boundsRect.top, self->boundsRect.left, self->boundsRect.bottom, self->boundsRect.right);
-        NSLog(@"SGSetChannelBounds() returned %ld", theErr);
+        //TODO ....
         //PyErr_Format(PyExc_SystemError, "Cannot set bounds of Rect");
         //return 0;
     }
@@ -137,7 +136,7 @@ int mac_init_device(PyCameraObject* self) {
     }
 
     // Set data proc
-    theErr = SGSetDataProc(self->component, NewSGDataUPP(&mac_gworld_to_surface), (long) self);
+    theErr = SGSetDataProc(self->component, NewSGDataUPP(&mac_que_frame), (long) self);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
         return 0;
@@ -246,27 +245,55 @@ int mac_stop_capturing (PyCameraObject* self) {
 }
 
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
-    mac_que_frame(self, )
+    printf("helper: read frame 1\n");
+    //mac_que_frame(self);
+    mac_camera_idle(self);
+    printf("helper: read frame 1\n");
     return 1;
 }
 
 /* TODO: leg uit */
-int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+pascal int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
-    printf("helper: sg_data_proc recall fun...\n");
+//int mac_que_frame(PyCameraObject* self) {
+    printf("helper: que frame 1 gworld: %d\n", self->gWorld);
     
     //CSGCamera *camera = (CSGCamera *)refCon;
     ComponentResult theErr;
+    //Ptr data = 0;
+    //long dataLength = 123;
     
     if (self->gWorld) {
+        printf("helper: que frame 2\n");
         CodecFlags ignore;
+        
         theErr = DecompressSequenceFrameS(self->decompressionSequence, data, dataLength, 0, &ignore, NULL);
+        printf("helper: que frame 3\n");
         if (theErr != noErr) {
             NSLog(@"DecompressSequenceFrameS() returned %ld", theErr);
+            printf("helper: que frame 3b\n");
             return theErr;
         }
     }
+    printf("helper: data_ptr: %d, length: %d\n", data, dataLength);
+    printf("helper: que frame 4\n");
     
+    return 1;
+}
+
+int mac_camera_idle(PyCameraObject* self) {
+    printf("helper: idle 1\n");
+    OSErr theErr;
+
+    theErr = SGIdle(self->component);
+    printf("helper: idle 2\n");
+    if (theErr != noErr) {
+        NSLog(@"helper: idle 3, error: %@\n", theErr);
+        PyErr_Format(PyExc_SystemError, "Cannot put component into idle status");
+        printf("helper: idle 4\n");
+        return 0;
+    }
+    printf("helper: idle 5\n");
     return 1;
 }
 
@@ -274,5 +301,3 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     
     return 1;
 }
-
-# endif

@@ -19,8 +19,8 @@ PORTTIME = -I/System/Library/Frameworks/CoreMidi.framework/Versions/Current/Head
 COCOA = -I/System/Library/Frameworks/Cocoa.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "Cocoa" -Xlinker "-F/System/Library/Frameworks/"
 QUICKTIME = -I/System/Library/Frameworks/QuickTime.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuickTime" -Xlinker "-F/System/Library/Frameworks/"
 
-#DEBUG = -C-W -C-Wall
-DEBUG = 
+DEBUG = -C-W -C-Wall
+#DEBUG = 
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
