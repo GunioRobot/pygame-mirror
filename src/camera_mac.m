@@ -149,6 +149,14 @@ int mac_init_device(PyCameraObject* self) {
         return 0;
     }
     
+    // Start recording
+    theErr = SGStartRecord(self->component);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError, "Cannot start recording");
+        return 0;
+    }
+    
+    // Setup Decompression
     ComponentResult result;
 
     // test
@@ -219,13 +227,13 @@ int mac_close_device (PyCameraObject* self) {
 
 int mac_start_capturing(PyCameraObject* self) {
     OSErr theErr;
-    
+    /*
     // Start recording
     theErr = SGStartRecord(self->component);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Cannot start recording");
         return 0;
-    }
+    }*/
 
 //	startTime = [NSDate timeIntervalSinceReferenceDate];
 /*
