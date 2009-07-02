@@ -344,10 +344,10 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             return RAISE (PyExc_ValueError, 
                           "Destination surface not the correct width or height.");
         }
-        //Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
+        Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
         if (!mac_read_frame(self, surf))
             return NULL;
-        //Py_END_ALLOW_THREADS;
+        Py_END_ALLOW_THREADS;
         if (!surf)
             return NULL;
 

@@ -12,10 +12,12 @@ if __name__ == '__main__':
     snapshot = pygame.surface.Surface(size, 0, display)
     cameras = pygame.camera.list_cameras()
     c = pygame.camera.Camera(cameras[0])
+    clock = pygame.time.Clock()
     c.start()
 
     going = True
     while going:
+        time_passed = clock.tick(50)
         events = pygame.event.get()
         for e in events:
             if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
