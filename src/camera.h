@@ -90,6 +90,7 @@ typedef struct {
     GWorldPtr gWorld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
     ImageSequence decompressionSequence;
+    long size;                      // size of the image in our buffer to draw
     //TimeScale timeScale;
     //TimeValue lastTime;
     //NSTimeInterval startTime;
@@ -148,4 +149,5 @@ int mac_camera_idle(PyCameraObject* self);
 int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
     TimeValue time, short writeType, long refCon);
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
+int mac_que_frame2(PyCameraObject* self);
 #endif

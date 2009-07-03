@@ -158,8 +158,7 @@ int mac_init_device(PyCameraObject* self) {
     
     // Setup Decompression
     ComponentResult result;
-
-    // test
+    PixMapHandle hPixMap = NULL;
     ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
     result = SGGetChannelSampleDescription(self->channel, (Handle)imageDesc);
     if (result != noErr) {
@@ -167,6 +166,15 @@ int mac_init_device(PyCameraObject* self) {
         PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
         return 0;
     }
+    
+    // Set up getting grabbed data into the Window
+    /*hPixMap = GetGWorldPixMap(self->gWorld);
+    if (hPixMap != NULL) {
+        PyErr_Format(PyExc_SystemError, "Cannot obtains the pixel map created for an offscreen graphics world");
+        return 0;
+    }
+    GetPixBounds(hPixMap, &self->boundsRect);
+    self->decompressionSequence = 0;*/
 
     Rect sourceRect;
     sourceRect.top = 0;
@@ -176,8 +184,22 @@ int mac_init_device(PyCameraObject* self) {
 
     MatrixRecord scaleMatrix;
     RectMatrix(&scaleMatrix, &sourceRect, &self->boundsRect);
+    
+    self->size = (GetPixRowBytes(hPixMap) * (*imageDesc)->height);
 
-    result = DecompressSequenceBegin(&self->decompressionSequence, imageDesc, self->gWorld, NULL, NULL, &scaleMatrix, srcCopy, NULL, 0, codecNormalQuality, bestSpeedCodec);
+    result = DecompressSequenceBeginS(&self->decompressionSequence,
+                                      imageDesc,
+                                      NULL, //GetPixBaseAddr(hPixMap),
+                                      self->size,
+                                      self->gWorld,
+                                      NULL,
+                                      NULL,
+                                      &scaleMatrix,
+                                      srcCopy,
+                                      NULL,
+                                      0,
+                                      codecNormalQuality,
+                                      bestSpeedCodec);
     if (result != noErr) {
         NSLog(@"DecompressionSequenceBegin() returned %ld", theErr);
         PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
@@ -252,16 +274,39 @@ int mac_stop_capturing (PyCameraObject* self) {
     return 1;
 }
 
-int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
-    printf("helper: read frame 1\n");
+int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) { 
     //mac_que_frame(self);
     mac_camera_idle(self);
-    printf("helper: read frame 1\n");
+    mac_gworld_to_surface(self, surf);
+    return 1;
+}
+
+int mac_que_frame(PyCameraObject* self) {
+    ComponentResult theErr;
+    
+    if (self->gWorld) {
+        printf("helper: que frame 2\n");
+        CodecFlags ignore;
+        
+        theErr = DecompressSequenceFrameS(self->decompressionSequence,
+                                          GetPixBaseAddr(GetGWorldPixMap(self->gWorld)),
+                                          self->size,
+                                          0,
+                                          &ignore,
+                                          NULL);
+        printf("helper: que frame 3\n");
+        if (theErr != noErr) {
+            NSLog(@"DecompressSequenceFrameS() returned %ld", theErr);
+            printf("helper: que frame 3b\n");
+            return theErr;
+        }
+    }
+    
     return 1;
 }
 
 /* TODO: leg uit */
-pascal int mac_que_frame(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+pascal int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
 //int mac_que_frame(PyCameraObject* self) {
     printf("helper: que frame 1 gworld: %d\n", self->gWorld);
