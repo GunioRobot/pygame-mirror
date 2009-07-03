@@ -309,7 +309,6 @@ int mac_que_frame(PyCameraObject* self) {
 pascal int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
 TimeValue time, short writeType, long refCon) {
 //int mac_que_frame(PyCameraObject* self) {
-    printf("helper: que frame 1 gworld: %d\n", self->gWorld);
     
     //CSGCamera *camera = (CSGCamera *)refCon;
     ComponentResult theErr;
@@ -317,7 +316,6 @@ TimeValue time, short writeType, long refCon) {
     //long dataLength = 123;
     
     if (self->gWorld) {
-        printf("helper: que frame 2\n");
         CodecFlags ignore;
         
         theErr = DecompressSequenceFrameS(self->decompressionSequence, data, dataLength, 0, &ignore, NULL);
@@ -327,10 +325,7 @@ TimeValue time, short writeType, long refCon) {
             printf("helper: que frame 3b\n");
             return theErr;
         }
-    }
-    printf("helper: data_ptr: %d, length: %d\n", data, dataLength);
-    printf("helper: que frame 4\n");
-    
+    } 
     return 1;
 }
 
