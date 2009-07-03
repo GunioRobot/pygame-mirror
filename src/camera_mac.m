@@ -277,7 +277,7 @@ int mac_stop_capturing (PyCameraObject* self) {
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) { 
     //mac_que_frame(self);
     mac_camera_idle(self);
-    mac_gworld_to_surface(self, surf);
+    //mac_gworld_to_surface(self, surf);
     return 1;
 }
 
