@@ -82,7 +82,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
         return RAISE (PyExc_ValueError, "Incorrect colorspace value");
     }
 
-    surf = PySurface_AsSurface (surfobj);
+    surf = radiussSurface (surfobj);
 	
     if (!surfobj2) {
         newsurf = SDL_CreateRGBSurface (0, surf->w, surf->h,
@@ -308,12 +308,12 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
         return RAISE (PyExc_ValueError, 
                       "Destination surface not the correct width or height.");
     }
-//#if defined(__unix__)
+    
     Py_BEGIN_ALLOW_THREADS;
     if (!v4l2_read_frame(self, surf))
         return NULL;
     Py_END_ALLOW_THREADS;
-//#endif
+    
     if (!surf)
         return NULL;
         
@@ -334,7 +334,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             surf = SDL_CreateRGBSurface (0, self->boundsRect.right, self->boundsRect.bottom, 32, 0xFF<<16,  //bij linux is het 24
                                      0xFF<<8, 0xFF, 0);
         } else {
-            surf = PySurface_AsSurface (surfobj);
+            surf = radius(surfobj);
         }
 
         if (!surf)
@@ -1376,17 +1376,17 @@ PyTypeObject PyCamera_Type = {
     camera_dealloc,
     0,
     camera_getattr,
-    NULL,			/*setattr*/
-    NULL,			/*compare*/
-    NULL,			/*repr*/
-    NULL,			/*as_number*/
-    NULL,			/*as_sequence*/
-    NULL,			/*as_mapping*/
+    NULL,			        /*setattr*/
+    NULL,			        /*compare*/
+    NULL,			        /*repr*/
+    NULL,			        /*as_number*/
+    NULL,			        /*as_sequence*/
+    NULL,			        /*as_mapping*/
     (hashfunc)NULL, 		/*hash*/
     (ternaryfunc)NULL,		/*call*/
     (reprfunc)NULL, 		/*str*/
     0L,0L,0L,0L,
-    DOC_PYGAMECAMERACAMERA /* Documentation string */
+    DOC_PYGAMECAMERACAMERA  /* Documentation string */
 };
 
 PyObject* Camera (PyCameraObject* self, PyObject* arg) {
@@ -1457,11 +1457,8 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.left = 0;
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
-        //cameraobj->decompressionSequence = NULL;
-        //cameraobj->timeScale = NULL;
-        //cameraobj->lastTime = NULL;
-        //cameraobj->startTime = NULL;
-        //cameraobj->frameTimer = NULL;
+        cameraobj->decompressionSequence = NULL;
+        cameraobj->size = -1;
     }
     
     return (PyObject*)cameraobj;    
@@ -1481,12 +1478,12 @@ void init_camera(void) {
   /* imported needed apis; Do this first so if there is an error
      the module is not loaded.
   */
-  import_pygame_base ();
-  if (PyErr_Occurred ()) {
+  import_pygame_base();
+  if (PyErr_Occurred()) {
     return;
   }
-  import_pygame_surface ();
-  if (PyErr_Occurred ()) {
+  import_pygame_surface();
+  if (PyErr_Occurred()) {
     return;
   }
 

@@ -103,6 +103,7 @@ int mac_init_device(PyCameraObject* self) {
     }
     
     // Create the GWorld
+    //theErr = QTNewGWorld(&self->gWorld, k32ARGBPixelFormat, &self->boundsRect, 0, NULL, 0);
     theErr = QTNewGWorld(&self->gWorld, k32ARGBPixelFormat, &self->boundsRect, 0, NULL, 0);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Cannot create gWord");
@@ -276,8 +277,7 @@ int mac_stop_capturing (PyCameraObject* self) {
 
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) { 
     mac_que_frame(self);
-    //mac_camera_idle(self);
-    //mac_gworld_to_surface(self, surf);
+    mac_gworld_to_surface(self, surf);
     return 1;
 }
 
@@ -304,6 +304,20 @@ int mac_que_frame(PyCameraObject* self) {
     
     return 1;
 }
+
+int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
+    if (!surf)
+        return 0;
+        
+    SDL_LockSurface(surf);
+    
+    g
+    
+    SDL_UnlockSurface(surf);
+    
+    return 1;
+}
+
 
 /* TODO: leg uit */
 pascal int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
@@ -342,10 +356,5 @@ int mac_camera_idle(PyCameraObject* self) {
         return 0;
     }
     printf("helper: idle 5\n");
-    return 1;
-}
-
-int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
-    
     return 1;
 }

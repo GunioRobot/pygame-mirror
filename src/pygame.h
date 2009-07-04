@@ -697,7 +697,7 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 // No PySlice_GetIndicesEx on Py 2.2        
 #define PySlice_GetIndicesEx(a,b,c,d,e,f) PySlice_GetIndices(a,b,c,d,e)
 
-#define PyBool_FromLong(x) 	Py_BuildValue("b", x)
+#define PyBool_FromLong(x) 	Py_BuildValue("b", x)   
 #endif
 
 // _symport_free and malloc are not exported in python.dll
