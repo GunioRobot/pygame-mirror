@@ -82,7 +82,7 @@ PyObject* surf_colorspace (PyObject* self, PyObject* arg) {
         return RAISE (PyExc_ValueError, "Incorrect colorspace value");
     }
 
-    surf = radiussSurface (surfobj);
+    surf = PySurface_AsSurface (surfobj);
 	
     if (!surfobj2) {
         newsurf = SDL_CreateRGBSurface (0, surf->w, surf->h,
@@ -334,7 +334,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
             surf = SDL_CreateRGBSurface (0, self->boundsRect.right, self->boundsRect.bottom, 32, 0xFF<<16,  //bij linux is het 24
                                      0xFF<<8, 0xFF, 0);
         } else {
-            surf = radius(surfobj);
+            surf = PySurface_AsSurface(surfobj);
         }
 
         if (!surf)

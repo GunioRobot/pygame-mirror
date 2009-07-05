@@ -8,6 +8,7 @@
 // TODO: memory management in open, init and close
 
 #import "camera.h"
+#import <SDL.h>
 
 /* 
  * return: an array of the available cameras ids.
@@ -294,10 +295,8 @@ int mac_que_frame(PyCameraObject* self) {
                                           0,
                                           &ignore,
                                           NULL);
-        printf("helper: que frame 3\n");
         if (theErr != noErr) {
-            NSLog(@"DecompressSequenceFrameS() returned %ld", theErr);
-            printf("helper: que frame 3b\n");
+            PyErr_Format(PyExc_SystemError, "an error occurred when trying to decompress the sequence");
             return theErr;
         }
     }
@@ -311,7 +310,27 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
         
     SDL_LockSurface(surf);
     
-    g
+    if (self->gWorld == NULL) {
+        PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
+        return 0;
+    }
+
+    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    if (LockPixels(pixMapHandle)) {
+        Rect portRect;
+        GetPortBounds(self->gWorld, &portRect );
+        int pixels_wide = (portRect.right - portRect.left);
+        int pixels_high = (portRect.bottom - portRect.top);
+        
+        void *pixBaseAddr = GetPixBaseAddr(pixMapHandle);
+        long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
+        
+        printf("helper: surf.pixels: %dl\n", pixmapRowBytes);
+    }
+    
+    
+    //Uint8 index=*(Uint8 *)surf->pixels;
+    //Uint8 color = (surf->format->palette->colors[index].r;
     
     SDL_UnlockSurface(surf);
     
