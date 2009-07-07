@@ -316,6 +316,7 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     }
 
     PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    void *pixBaseAddr;
     SDL_Surface *surf2 = NULL;
     if (LockPixels(pixMapHandle)) {
         Rect portRect;
@@ -323,32 +324,55 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
         int pixels_wide = (portRect.right - portRect.left);
         int pixels_high = (portRect.bottom - portRect.top);
         
-        void *pixBaseAddr = GetPixBaseAddr(pixMapHandle);
+        pixBaseAddr = GetPixBaseAddr(pixMapHandle);
         long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
         
-        printf("helper: surf.pixels: %dl\n", pixBaseAddr);
-        
+        /*
         surf2 = SDL_CreateRGBSurfaceFrom(pixBaseAddr,                   //void *pixels,
                                          pixels_wide,                   //int width,
                                          pixels_high,                   //int height,
                                          32,                            //int bitsPerPixel,
-                                         pixels_wide* 32,               //int pitch, 
+                                         pixels_wide*32,               //int pitch, 
                                          surf->format->Rmask,           //Uint32 Rmask,
                                          surf->format->Gmask,           //Uint32 Gmask,
                                          surf->format->Bmask,           //Uint32 Bmask,
-                                         surf->format->Amask);          //Uint32 Amask);
+                                         surf->format->Amask);          //Uint32 Amask);                               
+        */
+        
+        //memcpy(surf->pixels, pixBaseAddr, pixmapRowBytes);
+        
+        int row = 0;
+        int column;
+        Uint32 colour = SDL_MapRGB(surf->format, 255, 0, 0);
+        Uint32 *pixmem32;
+        while(row < pixels_wide) {
+            column = 0;
+            while(column < pixels_high) {
+                pixmem32 = (Uint32*) surf->pixels  + column*surf->pitch/4 + row;
+                *pixmem32 = colour;
+                column++;
+            }
+            row++;
+        }
         
         UnlockPixels( pixMapHandle );
         
     }
     
     
-    //Uint8 index=*(Uint8 *)surf->pixels;
-    //Uint8 color = (surf->format->palette->colors[index].r;
-    
     SDL_UnlockSurface(surf);
     
-    surf = surf2;
+    //printf("helper: surf2.pixels: %dl\n", surf2->pixels);
+    printf("helper: surf.pixels: %dl\n", surf->pixels);
+    printf("helper: pix bassadr: %dl\n", pixBaseAddr);
+    printf("helper: surf: %dl\n", surf);
+    printf("helper: surf: %dl\n", surf);
+    printf("=====================================================================\n");
+    
+    return 1;
+}
+
+int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     
     return 1;
 }

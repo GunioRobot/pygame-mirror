@@ -24,7 +24,7 @@ if __name__ == '__main__':
                 going = False
         
         print 'get image begin'
-        snapshot = c.get_image(snapshot)
+        snapshot = c.get_image() #snapshot)
         print 'get image stop'
         display.blit(snapshot, (0, 0))
     c.stop()

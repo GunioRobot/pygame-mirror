@@ -150,4 +150,5 @@ int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long da
     TimeValue time, short writeType, long refCon);
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 int mac_que_frame(PyCameraObject* self);
+int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 #endif

@@ -345,6 +345,7 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
                           "Destination surface not the correct width or height.");
         }
         Py_BEGIN_ALLOW_THREADS; //is dit nodig op osx...
+        
         if (!mac_read_frame(self, surf))
             return NULL;
         Py_END_ALLOW_THREADS;
