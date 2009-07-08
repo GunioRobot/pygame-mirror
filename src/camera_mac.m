@@ -293,8 +293,8 @@ PyObject *mac_read_raw(PyCameraObject *self) {
         long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
         
         raw = PyString_FromStringAndSize(pixBaseAddr, pixels_wide*pixmapRowBytes);
-        
-        UnlockPixels( pixMapHandle );
+        printf("raw string: %s, size: %d\n", PyString_AsString(raw), PyString_Size(raw));
+        UnlockPixels(pixMapHandle);
     }
     return raw;
 }
@@ -401,10 +401,6 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
             memcpy(dst, src, pixels_wide*4);
             row++;
         }
-        printf("helper: src: %d, dst: %d\n", src, dst);
-        src = pixBaseAddr + row*pixmapRowBytes;
-        int a = src[0];
-        printf("helper: src: %d, dst: %d\n", src, dst);
         
                 
         //memcpy(surf->pixels, pixBaseAddr, pixels_high*pixels_wide*4);

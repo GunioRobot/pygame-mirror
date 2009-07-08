@@ -45,7 +45,7 @@ def test2():
     
     print "=======================>"
     s = c.get_raw()
-    print s
+    print s[1]
     
     time.sleep(2)
     

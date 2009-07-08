@@ -144,6 +144,7 @@ int mac_close_device (PyCameraObject* self);
 
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
+PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
 int mac_camera_idle(PyCameraObject* self);
 int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
