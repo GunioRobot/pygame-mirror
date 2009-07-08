@@ -367,7 +367,7 @@ PyObject* camera_get_raw(PyCameraObject* self) {
 #if defined(__unix__)
     return v4l2_read_raw(self);
 #endif
-    Py_RETURN_NONE;
+    return mac_read_raw(self);
 }
 
 /*
