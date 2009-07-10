@@ -28,6 +28,8 @@ def test1():
         snapshot = c.get_image() #snapshot)
         print 'get image stop'
         display.blit(snapshot, (0, 0))
+        pygame.display.flip()
+
     c.stop()
 
 # get raw string
@@ -53,6 +55,6 @@ def test2():
 
 # main
 if __name__ == '__main__':
-    #test1()
-    test2()
+    test1()
+    #test2()
     

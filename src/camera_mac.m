@@ -9,6 +9,7 @@
 
 #import "camera.h"
 #import <SDL.h>
+#import <Cocoa/Cocoa.h>
 
 /* 
  * return: an array of the available cameras ids.
@@ -299,10 +300,11 @@ PyObject *mac_read_raw(PyCameraObject *self) {
     return raw;
 }
 
-int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) { 
+int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     mac_que_frame(self);
     //mac_camera_idle(self);
     mac_gworld_to_surface(self, surf);
+    //mac_gworld_to_nsimage(self);
     return 1;
 }
 
@@ -351,47 +353,6 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
         pixBaseAddr = GetPixBaseAddr(pixMapHandle);
         long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
         
-        /*
-        surf2 = SDL_CreateRGBSurfaceFrom(pixBaseAddr,                   //void *pixels,
-                                         pixels_wide,                   //int width,
-                                         pixels_high,                   //int height,
-                                         32,                            //int bitsPerPixel,
-                                         pixels_wide*32,               //int pitch, 
-                                         surf->format->Rmask,           //Uint32 Rmask,
-                                         surf->format->Gmask,           //Uint32 Gmask,
-                                         surf->format->Bmask,           //Uint32 Bmask,
-                                         surf->format->Amask);          //Uint32 Amask);                               
-        */
-                
-        /*
-        int row = 0;
-        int column;
-        Uint32 colour = SDL_MapRGB(surf->format, 255, 0, 0);
-        Uint32 *pixmem32;
-        while(row < pixels_wide) {
-            column = 0;
-            while(column < pixels_high) {
-                pixmem32 = (Uint32*) surf->pixels  + column*surf->pitch/4 + row;
-                *pixmem32 = colour;
-                column++;
-            }
-            row++;
-        }
-        */
-        
-        /*
-        Uint32 *dst, src;
-        row = 0;
-        while(row < pixels_wide) {
-            dst = (Uint32*) surf->pixels + row * pixmapRowBytes;
-            src = pixBaseAddr + row * pixmapRowBytes;
-            memcpy(dst, pixBaseAddr, pixmapRowBytes);
-            row++;
-        }
-        */
-        
-        printf("helper: pixmapRowBytes: %d\n", pixmapRowBytes);
-        
         int row = 0;
         Uint32 *dst, *src;
         row = 0;
@@ -402,21 +363,8 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
             row++;
         }
         
-                
-        //memcpy(surf->pixels, pixBaseAddr, pixels_high*pixels_wide*4);
-        
-        /*
-        Rect dstRect;
-        dstRect.top = surf->clip_rect.y;
-        dstRect.left = surf->clip_rect.x;
-        dstRect.bottom = surf->clip_rect.y + surf->clip_rect.h;
-        dstRect.right = surf->clip_rect.x + surf->clip_rect.w;
-        */
-        
-        UnlockPixels( pixMapHandle );
-        
+        UnlockPixels( pixMapHandle );    
     }
-    
     
     SDL_UnlockSurface(surf);
     
@@ -425,6 +373,107 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     printf("helper: surf: %dl\n", surf);
     printf("=====================================================================\n");
     
+    return 1;
+}
+
+int mac_gworld_to_nsimage(PyCameraObject* self) {
+    if (self->gWorld == NULL) {
+        PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
+        return 0;
+    }
+
+    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    if (LockPixels(pixMapHandle)) {
+        Rect portRect;
+        GetPortBounds(self->gWorld, &portRect );
+        int pixels_wide = (portRect.right - portRect.left);
+        int pixels_high = (portRect.bottom - portRect.top);
+        
+        int bps = 8;
+        int spp = 4;
+        bool has_alpha = true;
+        
+        printf("nsimage 1\n");
+        
+        NSBitmapImageRep *frameBitmap = [[[NSBitmapImageRep alloc]
+            initWithBitmapDataPlanes:NULL
+                          pixelsWide:pixels_wide
+                          pixelsHigh:pixels_high
+                       bitsPerSample:bps
+                     samplesPerPixel:spp
+                            hasAlpha:has_alpha
+                            isPlanar:NO
+                      colorSpaceName:NSDeviceRGBColorSpace
+                         bytesPerRow:0
+                        bitsPerPixel:0] autorelease];
+
+        CGColorSpaceRef dst_colorspaceref = CGColorSpaceCreateDeviceRGB();
+
+        CGImageAlphaInfo dst_alphainfo = has_alpha ? kCGImageAlphaPremultipliedLast : kCGImageAlphaNone;
+
+        CGContextRef dst_contextref = CGBitmapContextCreate( [frameBitmap bitmapData],
+                                                             pixels_wide,
+                                                             pixels_high,
+                                                             bps,
+                                                             [frameBitmap bytesPerRow],
+                                                             dst_colorspaceref,
+                                                             dst_alphainfo );
+
+        void *pixBaseAddr = GetPixBaseAddr(pixMapHandle);
+        long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
+
+        CGDataProviderRef dataproviderref = CGDataProviderCreateWithData( NULL, pixBaseAddr, pixmapRowBytes * pixels_high, NULL );
+
+        int src_bps = 8;
+        int src_spp = 4;
+        bool src_has_alpha = true;
+
+        CGColorSpaceRef src_colorspaceref = CGColorSpaceCreateDeviceRGB();
+
+        CGImageAlphaInfo src_alphainfo = src_has_alpha ? kCGImageAlphaPremultipliedFirst : kCGImageAlphaNone;
+
+        printf("nsimage 2\n");
+        
+        CGImageRef src_imageref = CGImageCreate( pixels_wide,
+                                                 pixels_high,
+                                                 src_bps,
+                                                 src_bps * src_spp,
+                                                 pixmapRowBytes,
+                                                 src_colorspaceref,
+                                                 src_alphainfo,
+                                                 dataproviderref,
+                                                 NULL,
+                                                 NO, // shouldInterpolate
+                                                 kCGRenderingIntentDefault );
+
+        CGRect rect = CGRectMake( 0, 0, pixels_wide, pixels_high );
+
+        CGContextDrawImage( dst_contextref, rect, src_imageref );
+
+        CGImageRelease( src_imageref );
+        CGColorSpaceRelease( src_colorspaceref );
+        CGDataProviderRelease( dataproviderref );
+        CGContextRelease( dst_contextref );
+        CGColorSpaceRelease( dst_colorspaceref );
+
+        UnlockPixels( pixMapHandle );
+
+        NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(pixels_wide, pixels_high)];
+        [image addRepresentation:frameBitmap];
+        
+        printf("nsimage 3\n");
+        
+        // save image as png
+        NSData *data;
+        data = [frameBitmap representationUsingType: NSPNGFileType
+                     properties: nil];
+        [data writeToFile: @"/Users/abe/test.png"
+              atomically: NO];
+        
+        
+
+        [image autorelease];   
+    }
     return 1;
 }
 
