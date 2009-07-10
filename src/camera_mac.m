@@ -301,10 +301,10 @@ PyObject *mac_read_raw(PyCameraObject *self) {
 }
 
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
-    mac_que_frame(self);
-    //mac_camera_idle(self);
+    //mac_que_frame(self);
+    mac_camera_idle(self);
     mac_gworld_to_surface(self, surf);
-    //mac_gworld_to_nsimage(self);
+    mac_gworld_to_nsimage(self);
     return 1;
 }
 
@@ -503,8 +503,6 @@ TimeValue time, short writeType, long refCon) {
             return theErr;
         }
     }
-    
-    return 1;
 }
 
 int mac_camera_idle(PyCameraObject* self) {
@@ -512,13 +510,9 @@ int mac_camera_idle(PyCameraObject* self) {
     OSErr theErr;
 
     theErr = SGIdle(self->component);
-    printf("helper: idle 2\n");
     if (theErr != noErr) {
-        NSLog(@"helper: idle 3, error: %@\n", theErr);
         PyErr_Format(PyExc_SystemError, "Cannot put component into idle status");
-        printf("helper: idle 4\n");
         return 0;
     }
-    printf("helper: idle 5\n");
     return 1;
 }
