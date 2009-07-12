@@ -7,7 +7,7 @@
 
 // TODO: memory management in open, init and close
 
-#include "camera.h"
+#import "camera.h"
 
 /* 
  * return: an array of the available cameras ids.

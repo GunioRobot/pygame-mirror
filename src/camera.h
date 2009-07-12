@@ -44,9 +44,9 @@
 #elif defined(__APPLE__)
     //#import <Cocoa/Cocoa.h>
     //#import <Foundation/Foundation.h>
-    #include <QuickTime/QuickTime.h>
-    #include <QuickTime/Movies.h>
-    #include <Cocoa/Cocoa.h>
+    #import <QuickTime/QuickTime.h>
+    #import <QuickTime/Movies.h>
+    #import <Cocoa/Cocoa.h>
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -158,5 +158,5 @@ int mac_que_frame_old(SGChannel channel, Ptr data, long dataLength, long *offset
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 int mac_que_frame(PyCameraObject* self);
 int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
-unsigned char* get_frame(PyCameraObject* self);
+unsigned char *get_frame(PyCameraObject* self);
 #endif
