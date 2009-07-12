@@ -44,8 +44,9 @@
 #elif defined(__APPLE__)
     //#import <Cocoa/Cocoa.h>
     //#import <Foundation/Foundation.h>
-    #import <QuickTime/QuickTime.h>
-    #import <QuickTime/Movies.h>
+    #include <QuickTime/QuickTime.h>
+    #include <QuickTime/Movies.h>
+    #include <Cocoa/Cocoa.h>
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -59,10 +60,12 @@
 #define CAM_V4L 1
 #define CAM_V4L2 2
 
+#if defined(__unix__)
 struct buffer {
     void * start;
     size_t length;
 };
+#endif
 
 #if defined(__unix__)
 typedef struct {
@@ -91,10 +94,13 @@ typedef struct {
     Rect boundsRect;                // bounds of the image frame
     ImageSequence decompressionSequence;
     long size;                      // size of the image in our buffer to draw
-    //TimeScale timeScale;
-    //TimeValue lastTime;
-    //NSTimeInterval startTime;
-    //NSTimer *frameTimer;
+    TimeScale timeScale;
+    TimeValue lastTime;
+    NSTimeInterval startTime;
+    NSTimer *frameTimer;
+    SDL_Surface* surf;
+    unsigned char *pbuffer;
+    unsigned char *buffer;
 } PyCameraObject;
 #endif
 
@@ -147,9 +153,10 @@ int mac_stop_capturing (PyCameraObject* self);
 PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
 int mac_camera_idle(PyCameraObject* self);
-int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
+int mac_que_frame_old(SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
     TimeValue time, short writeType, long refCon);
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 int mac_que_frame(PyCameraObject* self);
 int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
+unsigned char* get_frame(PyCameraObject* self);
 #endif

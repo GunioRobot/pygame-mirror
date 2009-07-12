@@ -325,13 +325,13 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
     }
 #elif defined(__APPLE__)
         SDL_Surface* surf = NULL;
-        PyObject *surfobj = NULL;
+        PyObject* surfobj = NULL;
 
         if (!PyArg_ParseTuple (arg, "|O!", &PySurface_Type, &surfobj))
             return NULL;
 
         if (!surfobj) {
-            surf = SDL_CreateRGBSurface (0, self->boundsRect.right, self->boundsRect.bottom, 32, 0xFF<<16,  //bij linux is het 24
+            surf = SDL_CreateRGBSurface (0, self->boundsRect.right, self->boundsRect.bottom, 24, 0xFF<<16,  //bij linux is het 24
                                      0xFF<<8, 0xFF, 0);
         } else {
             surf = PySurface_AsSurface(surfobj);
