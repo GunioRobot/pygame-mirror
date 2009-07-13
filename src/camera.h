@@ -60,12 +60,10 @@
 #define CAM_V4L 1
 #define CAM_V4L2 2
 
-#if defined(__unix__)
 struct buffer {
     void * start;
     size_t length;
 };
-#endif
 
 #if defined(__unix__)
 typedef struct {
@@ -98,9 +96,6 @@ typedef struct {
     TimeValue lastTime;
     NSTimeInterval startTime;
     NSTimer *frameTimer;
-    SDL_Surface* surf;
-    unsigned char *pbuffer;
-    unsigned char *buffer;
 } PyCameraObject;
 #endif
 
@@ -158,5 +153,4 @@ int mac_que_frame_old(SGChannel channel, Ptr data, long dataLength, long *offset
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 int mac_que_frame(PyCameraObject* self);
 int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
-unsigned char *get_frame(PyCameraObject* self);
 #endif
