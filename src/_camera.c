@@ -1455,7 +1455,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         strcpy(cameraobj->device_name, dev_name);
         cameraobj->component = NULL;
         cameraobj->channel = NULL;
-        cameraobj->gWorld = NULL;
+        cameraobj->gworld = NULL;
         cameraobj->boundsRect.top = 0;                   
         cameraobj->boundsRect.left = 0;
         cameraobj->boundsRect.bottom = h;

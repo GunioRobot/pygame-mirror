@@ -86,7 +86,7 @@ typedef struct {
     char* device_name;              // unieke name of the device
     SeqGrabComponent component;     // A type used by the Sequence Grabber API
     SGChannel channel;              // Channel of the Sequence Grabber
-    GWorldPtr gWorld;               // Pointer to the struct that holds the data of the captured image
+    GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
     ImageSequence decompressionSequence;
     long size;                      // size of the image in our buffer to draw

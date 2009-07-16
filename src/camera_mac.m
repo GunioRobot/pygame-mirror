@@ -123,7 +123,7 @@ int mac_init_device(PyCameraObject* self) {
 	
 	self->buffer = (unsigned char*) malloc(width*height*self->bytes);
 	
-	result = QTNewGWorldFromPtr (&self->gWorld,
+	result = QTNewGWorldFromPtr (&self->gworld,
 									pixelFormat,
                                     &self->boundsRect, 
                                     NULL, 
@@ -140,7 +140,7 @@ int mac_init_device(PyCameraObject* self) {
 		return false;
 	}  
 	
-    if (self->gWorld == NULL)
+    if (self->gworld == NULL)
 	{
 		fprintf(stdout, "Could not allocate off screen\n");
 		//delete []buffer;
@@ -148,7 +148,7 @@ int mac_init_device(PyCameraObject* self) {
 		return false;
 	}
 	
-    result = SGSetGWorld(self->component, (CGrafPtr)self->gWorld, NULL);
+    result = SGSetGWorld(self->component, (CGrafPtr)self->gworld, NULL);
 	if (result != noErr) {
 		fprintf(stdout, "Could not set SGSetGWorld\n");
 		//delete []buffer;
@@ -221,9 +221,9 @@ int mac_close_device (PyCameraObject* self) {
    	}
     
     // Dispose of GWorld
-   	if (self->gWorld) {
-   		DisposeGWorld(self->gWorld);
-   		self->gWorld = NULL;
+   	if (self->gworld) {
+   		DisposeGWorld(self->gworld);
+   		self->gworld = NULL;
    	}
     return 1;
 }
@@ -233,16 +233,16 @@ int mac_stop_capturing (PyCameraObject* self) {
 }
 
 PyObject *mac_read_raw(PyCameraObject *self) {
-    if (self->gWorld == NULL) {
+    if (self->gworld == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
         return 0;
     }
     
     PyObject *raw = NULL;
-    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gworld);
     if (LockPixels(pixMapHandle)) {
         Rect portRect;
-        GetPortBounds(self->gWorld, &portRect);
+        GetPortBounds(self->gworld, &portRect);
         int pixels_wide = (portRect.right - portRect.left);
         int pixels_high = (portRect.bottom - portRect.top);
         void* pixBaseAddr = GetPixBaseAddr(pixMapHandle);
@@ -278,10 +278,20 @@ int mac_get_frame(PyCameraObject* self, SDL_Surface* surf) {
 	}
 	
  	SDL_LockSurface(surf);
-    //surf->format->Rmask = 0xff000000;
-    //surf->format->Gmask = 0x00ff0000;
-    //surf->format->Bmask = 0x0000ff00;
-    //surf->format->Amask = 0x000000ff;
+    /*
+    surf->format->Rmask = 0xff000000;
+    surf->format->Gmask = 0x00ff0000;
+    surf->format->Bmask = 0x0000ff00;
+    surf->format->Amask = 0x000000ff;
+    */
+    
+    /*
+    surf->format->Bshift = 0xff000000;
+    surf->format->Gshift = 0x00ff0000;
+    surf->format->Rshift = 0x0000ff00;
+    surf->format->Ashift = 0x000000ff;
+    */
+    
     //surf->format->BytesPerPixel = 4;
 	
 	memcpy(surf->pixels, self->buffer, width*height*self->bytes);
@@ -293,12 +303,12 @@ int mac_get_frame(PyCameraObject* self, SDL_Surface* surf) {
 int mac_que_frame(PyCameraObject* self) {
     ComponentResult theErr;
     
-    if (self->gWorld) {
+    if (self->gworld) {
         printf("helper: que frame 2\n");
         CodecFlags ignore;
         
         theErr = DecompressSequenceFrameS(self->decompressionSequence,
-                                          GetPixBaseAddr(GetGWorldPixMap(self->gWorld)),
+                                          GetPixBaseAddr(GetGWorldPixMap(self->gworld)),
                                           self->size,
                                           0,
                                           &ignore,
@@ -318,17 +328,17 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
         
     SDL_LockSurface(surf);
     
-    if (self->gWorld == NULL) {
+    if (self->gworld == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
         return 0;
     }
 
-    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gworld);
     void *pixBaseAddr;
     SDL_Surface *surf2 = NULL;
     if (LockPixels(pixMapHandle)) {
         Rect portRect;
-        GetPortBounds(self->gWorld, &portRect );
+        GetPortBounds(self->gworld, &portRect );
         int pixels_wide = (portRect.right - portRect.left);
         int pixels_high = (portRect.bottom - portRect.top);
         
@@ -360,15 +370,15 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
 
 /*
 int mac_gworld_to_nsimage(PyCameraObject* self) {
-    if (self->gWorld == NULL) {
+    if (self->gworld == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
         return 0;
     }
 
-    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
+    PixMapHandle pixMapHandle = GetGWorldPixMap(self->gworld);
     if (LockPixels(pixMapHandle)) {
         Rect portRect;
-        GetPortBounds(self->gWorld, &portRect);
+        GetPortBounds(self->gworld, &portRect);
         int pixels_wide = (portRect.right - portRect.left);
         int pixels_high = (portRect.bottom - portRect.top);
         
