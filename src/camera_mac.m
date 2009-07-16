@@ -227,7 +227,7 @@ int mac_close_device (PyCameraObject* self) {
 
 /* Stop capturing. */
 int mac_stop_capturing (PyCameraObject* self) {
-    OSErr theErr = SGStopPreview(self->component);
+    OSErr theErr = SGStop(self->component);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Could not stop the sequence grabber with previewing");
         return 0;
@@ -239,6 +239,10 @@ int mac_stop_capturing (PyCameraObject* self) {
 PyObject *mac_read_raw(PyCameraObject *self) {
     if (self->gworld == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
+        return 0;
+    }
+    
+    if (mac_camera_idle(self) == 0) {
         return 0;
     }
     
@@ -258,6 +262,8 @@ int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
         return 0;
     }
 }
+
+;
 
 /* Put the camera in idle mode. */
 int mac_camera_idle(PyCameraObject* self) {

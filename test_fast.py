@@ -45,9 +45,9 @@ def test2():
     clock = pygame.time.Clock()
     c.start()
     
-    print "=======================>"
+    print "=======================>>>"
     s = c.get_raw()
-    print s[1]
+    print s
     
     time.sleep(2)
     
