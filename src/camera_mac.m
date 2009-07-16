@@ -121,7 +121,8 @@ int mac_init_device(PyCameraObject* self) {
          fprintf(stdout, "could not set SG AllData\n");
 	};
 	
-	self->buffer = (unsigned char*) malloc(width*height*self->bytes);
+    self->buffers.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
+	self->buffers.start = (unsigned char*) malloc(self->buffers.length);
 	
 	result = QTNewGWorldFromPtr (&self->gworld,
 									pixelFormat,
@@ -129,14 +130,14 @@ int mac_init_device(PyCameraObject* self) {
                                     NULL, 
                                     NULL, 
                                     0, 
-                                    self->buffer, 
+                                    self->buffers.start, 
                                     rowlength);
         
 	if (result!= noErr)
   	{
 		fprintf(stdout, "%d error at QTNewGWorldFromPtr\n", result);
 		//delete []buffer;
-		self->buffer = NULL;
+		self->buffers.start = NULL;
 		return false;
 	}  
 	
@@ -144,7 +145,7 @@ int mac_init_device(PyCameraObject* self) {
 	{
 		fprintf(stdout, "Could not allocate off screen\n");
 		//delete []buffer;
-		self->buffer = NULL;
+		self->buffers.start = NULL;
 		return false;
 	}
 	
@@ -152,7 +153,7 @@ int mac_init_device(PyCameraObject* self) {
 	if (result != noErr) {
 		fprintf(stdout, "Could not set SGSetGWorld\n");
 		//delete []buffer;
-		self->buffer = NULL;
+		self->buffers.start = NULL;
 		return false;
 	}
 
@@ -294,30 +295,8 @@ int mac_get_frame(PyCameraObject* self, SDL_Surface* surf) {
     
     //surf->format->BytesPerPixel = 4;
 	
-	memcpy(surf->pixels, self->buffer, width*height*self->bytes);
+	memcpy(surf->pixels, self->buffers.start, self->buffers.length);
     SDL_UnlockSurface(surf);
-    
-    return 1;
-}
-
-int mac_que_frame(PyCameraObject* self) {
-    ComponentResult theErr;
-    
-    if (self->gworld) {
-        printf("helper: que frame 2\n");
-        CodecFlags ignore;
-        
-        theErr = DecompressSequenceFrameS(self->decompressionSequence,
-                                          GetPixBaseAddr(GetGWorldPixMap(self->gworld)),
-                                          self->size,
-                                          0,
-                                          &ignore,
-                                          NULL);
-        if (theErr != noErr) {
-            PyErr_Format(PyExc_SystemError, "an error occurred when trying to decompress the sequence");
-            return theErr;
-        }
-    }
     
     return 1;
 }

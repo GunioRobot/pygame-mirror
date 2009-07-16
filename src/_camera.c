@@ -1460,8 +1460,8 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.left = 0;
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
-        cameraobj->decompressionSequence = NULL;
         cameraobj->size = -1;
+        cameraobj->buffers = NULL;
     }
     
     return (PyObject*)cameraobj;    

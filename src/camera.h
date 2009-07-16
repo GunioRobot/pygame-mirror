@@ -88,11 +88,10 @@ typedef struct {
     SGChannel channel;              // Channel of the Sequence Grabber
     GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
-    ImageSequence decompressionSequence;
     long size;                      // size of the image in our buffer to draw
     
-    void* buffer;
     short bytes;
+    struct buffer buffers;
 } PyCameraObject;
 #endif
 
@@ -146,7 +145,6 @@ PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
 int mac_camera_idle(PyCameraObject* self);
 int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
-int mac_que_frame(PyCameraObject* self);
 int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf);
 int mac_get_frame(PyCameraObject* self, SDL_Surface* surf);
 #endif
