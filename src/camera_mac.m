@@ -9,7 +9,7 @@
 
 #import "camera.h"
 #import <SDL.h>
-#import <Cocoa/Cocoa.h>
+//#import <Cocoa/Cocoa.h>
 
 /* 
  * return: an array of the available cameras ids.
@@ -69,148 +69,126 @@ int mac_open_device (PyCameraObject* self) {
 
 /* Make the Camera object ready for capturing images. */
 int mac_init_device(PyCameraObject* self) {
+	int width = self->boundsRect.right;
+	int height = self->boundsRect.bottom;
+	
+    self->bytes = 4;
+	int rowlength= width*self->bytes;
+	
+	OSType pixelFormat = k32RGBAPixelFormat;
+	
+	OSErr result;
+	
+	result = SGInitialize(self->component);                                      //
+    if(result!=noErr){
+         fprintf(stdout, "could not initialize SG\n");
+    }
+    
+	
+    result = SGSetDataRef(self->component, 0, 0, seqGrabDontMakeMovie);          //
+        if (result != noErr){
+             fprintf(stdout, "dataref failed\n");
+        }
+        
+    result = SGNewChannel(self->component, VideoMediaType, &self->channel);		            //
+    if(result!=noErr){
+         //fprintf(stdout, "could not make new SG channnel\n");
+		 return false;
+    }
+
+	//result = SGSettingsDialog (self->component, self->channel ,0 ,NULL ,seqGrabSettingsPreviewOnly,NULL,0);
+    //if(result!=noErr){
+    //     fprintf(stdout, "could not get settings from dialog\n");
+    //}
+    
+    result = SGSetChannelBounds(self->channel, &self->boundsRect);
+    if(result!=noErr){
+         fprintf(stdout, "could not set SG ChannelBounds\n");
+    }
+	
+	/*result = SGSetFrameRate (vc, fps);
+    if(result!=noErr){
+         fprintf(stdout, "could not set SG FrameRate\n");
+    }*/
+      
+    result = SGSetChannelUsage(self->channel, seqGrabPreview);
+    if(result!=noErr){
+         fprintf(stdout, "could not set SG ChannelUsage\n");
+    }
+    
+	result = SGSetChannelPlayFlags(self->channel, channelPlayAllData);
+	if(result!=noErr){
+         fprintf(stdout, "could not set SG AllData\n");
+	};
+	
+	self->buffer = (unsigned char*) malloc(width*height*self->bytes);
+	
+	result = QTNewGWorldFromPtr (&self->gWorld,
+									pixelFormat,
+                                    &self->boundsRect, 
+                                    NULL, 
+                                    NULL, 
+                                    0, 
+                                    self->buffer, 
+                                    rowlength);
+        
+	if (result!= noErr)
+  	{
+		fprintf(stdout, "%d error at QTNewGWorldFromPtr\n", result);
+		//delete []buffer;
+		self->buffer = NULL;
+		return false;
+	}  
+	
+    if (self->gWorld == NULL)
+	{
+		fprintf(stdout, "Could not allocate off screen\n");
+		//delete []buffer;
+		self->buffer = NULL;
+		return false;
+	}
+	
+    result = SGSetGWorld(self->component, (CGrafPtr)self->gWorld, NULL);
+	if (result != noErr) {
+		fprintf(stdout, "Could not set SGSetGWorld\n");
+		//delete []buffer;
+		self->buffer = NULL;
+		return false;
+	}
+
+    result = SGPrepare(self->component, TRUE, FALSE);
+    if (result != noErr) {
+            fprintf(stderr, "SGPrepare Preview failed\n");
+	}
+	
+	result = SGStartPreview(self->component);
+    if (result != noErr) {
+            fprintf(stderr, "SGStartPreview failed\n");
+	}
+	    
+    return 1;
+}
+
+int mac_start_capturing(PyCameraObject* self) {
     OSErr theErr;
-    
-    printf("helper: init sqc\n");
-    // Initialize sequence grabber component
-    theErr = SGInitialize(self->component);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot initializes the Saequence Grabber component");
-        return 0;
-    }
-    
-    printf("helper: no movie\n");
-    // Don't make movie
-    theErr = SGSetDataRef(self->component, 0, 0, seqGrabDontMakeMovie);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot not make a movie");
-        return 0;
-    }
-    
-    printf("helper: create sq video channel \n");
-    // Create sequence grabber video channel
-    theErr = SGNewChannel(self->component, VideoMediaType, &self->channel);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot creates a sequence grabber channel and assigns a channel component to the channel");
-        return 0;
-    }
-    
-    printf("helper: set channel bounds \n");
-    // Create sequence grabber video channel
-    theErr = SGSetChannelBounds(self->component, &self->boundsRect); //TODO find out why it allways returns an error (-32766)
-    if (theErr != noErr) {
-        //TODO ....
-        //PyErr_Format(PyExc_SystemError, "Cannot set bounds of Rect");
-        //return 0;
-    }
-    
-    // Create the GWorld
-    //theErr = QTNewGWorld(&self->gWorld, k32ARGBPixelFormat, &self->boundsRect, 0, NULL, 0);
-    theErr = QTNewGWorld(&self->gWorld, k32ARGBPixelFormat, &self->boundsRect, 0, NULL, 0);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot create gWord");
-        return 0;
-    }
-    // Lock the pixmap
-    if (!LockPixels(GetPortPixMap(self->gWorld))) {
-        PyErr_Format(PyExc_SystemError, "Could not lock pixels");
-        return 0;
-    }
-
-    // Set GWorld
-    theErr = SGSetGWorld(self->component, self->gWorld, GetMainDevice());
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Could not set gWord");
-        return 0;
-    }
-
-    // Set the channel's bounds
-    theErr = SGSetChannelBounds(self->channel, &self->boundsRect);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot set channel bounds");
-        return 0;
-    }
-
-    // Set the channel usage to record
-    theErr = SGSetChannelUsage(self->channel, seqGrabRecord);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
-        return 0;
-    }
-
-    // Set data proc
-    theErr = SGSetDataProc(self->component, NewSGDataUPP(&mac_que_frame_old), (long) self);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot set channel usage to record");
-        return 0;
-    }
-
-    // Prepare Sequence Grabber to record.
-    theErr = SGPrepare(self->component, false, true);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
-        return 0;
-    }
-    
+    /*
     // Start recording
     theErr = SGStartRecord(self->component);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError, "Cannot start recording");
         return 0;
-    }
-    
-    // Setup Decompression
-    ComponentResult result;
-    PixMapHandle hPixMap = NULL;
-    ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
-    result = SGGetChannelSampleDescription(self->channel, (Handle)imageDesc);
-    if (result != noErr) {
-        NSLog(@"SGGetChannelSampleDescription() returned %ld", theErr);
-        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
-        return 0;
-    }
-    
-    // Set up getting grabbed data into the Window
-    /*hPixMap = GetGWorldPixMap(self->gWorld);
-    if (hPixMap != NULL) {
-        PyErr_Format(PyExc_SystemError, "Cannot obtains the pixel map created for an offscreen graphics world");
-        return 0;
-    }
-    GetPixBounds(hPixMap, &self->boundsRect);
-    self->decompressionSequence = 0;*/
+    }*/
 
-    Rect sourceRect;
-    sourceRect.top = 0;
-    sourceRect.left = 0;
-    sourceRect.right = (**imageDesc).width;
-    sourceRect.bottom = (**imageDesc).height;
+//	startTime = [NSDate timeIntervalSinceReferenceDate];
+/*
+    // Set up decompression sequence (camera -> GWorld)
+    [self _setupDecompression];
 
-    MatrixRecord scaleMatrix;
-    RectMatrix(&scaleMatrix, &sourceRect, &self->boundsRect);
-    
-    self->size = (GetPixRowBytes(hPixMap) * (*imageDesc)->height);
+    // Start frame timer
+    frameTimer = [[NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(_sequenceGrabberIdle) userInfo:nil repeats:YES] retain];
 
-    result = DecompressSequenceBeginS(&self->decompressionSequence,
-                                      imageDesc,
-                                      NULL, //GetPixBaseAddr(hPixMap),
-                                      self->size,
-                                      self->gWorld,
-                                      NULL,
-                                      NULL,
-                                      &scaleMatrix,
-                                      srcCopy,
-                                      NULL,
-                                      0,
-                                      codecNormalQuality,
-                                      bestSpeedCodec);
-    if (result != noErr) {
-        NSLog(@"DecompressionSequenceBegin() returned %ld", theErr);
-        PyErr_Format(PyExc_SystemError, "Cannot set Sequence Grabber to record");
-        return 0;
-    }
-
-    DisposeHandle((Handle)imageDesc);
-    
+    [self retain]; // Matches autorelease in -stop
+*/
     return 1;
 }
 
@@ -250,29 +228,6 @@ int mac_close_device (PyCameraObject* self) {
     return 1;
 }
 
-int mac_start_capturing(PyCameraObject* self) {
-    OSErr theErr;
-    /*
-    // Start recording
-    theErr = SGStartRecord(self->component);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot start recording");
-        return 0;
-    }*/
-
-//	startTime = [NSDate timeIntervalSinceReferenceDate];
-/*
-    // Set up decompression sequence (camera -> GWorld)
-    [self _setupDecompression];
-
-    // Start frame timer
-    frameTimer = [[NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(_sequenceGrabberIdle) userInfo:nil repeats:YES] retain];
-
-    [self retain]; // Matches autorelease in -stop
-*/
-    return 1;
-}
-
 int mac_stop_capturing (PyCameraObject* self) {
     return 1;
 }
@@ -302,9 +257,36 @@ PyObject *mac_read_raw(PyCameraObject *self) {
 
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     //mac_que_frame(self);
-    mac_camera_idle(self);
-    mac_gworld_to_surface(self, surf);
-    mac_gworld_to_nsimage(self);
+    //mac_camera_idle(self);
+    //mac_gworld_to_nsimage(self);
+    //mac_gworld_to_surface(self, surf);
+    mac_get_frame(self, surf);
+    //mac_gworld_to_nsimage(self);
+    return 1;
+}
+
+int mac_get_frame(PyCameraObject* self, SDL_Surface* surf) {
+    int width = self->boundsRect.right;
+	int height = self->boundsRect.bottom;
+	
+	int rowlength= width*self->bytes;
+	
+    OSErr result = SGIdle(self->component);
+    if (result != noErr) {
+        fprintf(stderr, "SGIdle failed\n");
+		return 0;
+	}
+	
+ 	SDL_LockSurface(surf);
+    //surf->format->Rmask = 0xff000000;
+    //surf->format->Gmask = 0x00ff0000;
+    //surf->format->Bmask = 0x0000ff00;
+    //surf->format->Amask = 0x000000ff;
+    //surf->format->BytesPerPixel = 4;
+	
+	memcpy(surf->pixels, self->buffer, width*height*self->bytes);
+    SDL_UnlockSurface(surf);
+    
     return 1;
 }
 
@@ -376,6 +358,7 @@ int mac_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     return 1;
 }
 
+/*
 int mac_gworld_to_nsimage(PyCameraObject* self) {
     if (self->gWorld == NULL) {
         PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
@@ -385,7 +368,7 @@ int mac_gworld_to_nsimage(PyCameraObject* self) {
     PixMapHandle pixMapHandle = GetGWorldPixMap(self->gWorld);
     if (LockPixels(pixMapHandle)) {
         Rect portRect;
-        GetPortBounds(self->gWorld, &portRect );
+        GetPortBounds(self->gWorld, &portRect);
         int pixels_wide = (portRect.right - portRect.left);
         int pixels_high = (portRect.bottom - portRect.top);
         
@@ -419,7 +402,8 @@ int mac_gworld_to_nsimage(PyCameraObject* self) {
                                                              dst_colorspaceref,
                                                              dst_alphainfo );
 
-        void *pixBaseAddr = GetPixBaseAddr(pixMapHandle);
+        //void *pixBaseAddr = GetPixBaseAddr(pixMapHandle);
+        void *pixBaseAddr = self->buffer;
         long pixmapRowBytes = GetPixRowBytes(pixMapHandle);
 
         CGDataProviderRef dataproviderref = CGDataProviderCreateWithData( NULL, pixBaseAddr, pixmapRowBytes * pixels_high, NULL );
@@ -467,8 +451,7 @@ int mac_gworld_to_nsimage(PyCameraObject* self) {
         NSData *data;
         data = [frameBitmap representationUsingType: NSPNGFileType
                      properties: nil];
-        [data writeToFile: @"/Users/abe/test.png"
-              atomically: NO];
+        [data writeToFile: @"/Users/abe/test.png" atomically: NO];
         
         
 
@@ -476,36 +459,15 @@ int mac_gworld_to_nsimage(PyCameraObject* self) {
     }
     return 1;
 }
+*/
 
 int _copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     
     return 1;
 }
 
-
-/* TODO: leg uit */
-pascal int mac_que_frame_old(PyCameraObject* self, SGChannel channel, Ptr data, long dataLength, long *offset, long channelRefCon,
-TimeValue time, short writeType, long refCon) {
-    ComponentResult theErr;
-    
-    if (self->gWorld) {
-        printf("helper: que frame 2\n");
-        CodecFlags ignore;
-        
-        theErr = DecompressSequenceFrameS(self->decompressionSequence,
-                                          GetPixBaseAddr(GetGWorldPixMap(self->gWorld)),
-                                          self->size,
-                                          0,
-                                          &ignore,
-                                          NULL);
-        if (theErr != noErr) {
-            PyErr_Format(PyExc_SystemError, "an error occurred when trying to decompress the sequence");
-            return theErr;
-        }
-    }
-}
-
 int mac_camera_idle(PyCameraObject* self) {
+    printf("####################################### IDLE #######################################\n");
     printf("helper: idle 1\n");
     OSErr theErr;
 
