@@ -1461,7 +1461,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
         cameraobj->size = -1;
-        cameraobj->buffers = NULL;
+        cameraobj->bytes = 4;
     }
     
     return (PyObject*)cameraobj;    

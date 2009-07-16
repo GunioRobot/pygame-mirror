@@ -95,7 +95,7 @@ def list_cameras():
 
 class Camera:
 
-    def __init__(self, device =0, size = (320, 200), mode = "RGB"):
+    def __init__(self, device = 0, size = (320, 200), mode = "RGB"):
         """
         """
         _check_init()
