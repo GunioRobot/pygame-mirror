@@ -89,7 +89,7 @@ typedef struct {
     GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
     long size;                      // size of the image in our buffer to draw
-    short bytes;
+    short bytes;                    //
     struct buffer pixels;
 } PyCameraObject;
 #endif

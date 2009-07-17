@@ -263,8 +263,6 @@ int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     }
 }
 
-;
-
 /* Put the camera in idle mode. */
 int mac_camera_idle(PyCameraObject* self) {
     OSErr theErr = SGIdle(self->component);

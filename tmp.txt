@@ -94,4 +94,46 @@ surf = surf2;
         memcpy(dst, pixBaseAddr, pixmapRowBytes);
         row++;
     }
+<<<<<<< HEAD:tmp.txt
     */
+=======
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 382d1c154538e12342fd1db9063fd543ed04e93c:tmp.txt
