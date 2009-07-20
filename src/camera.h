@@ -140,8 +140,8 @@ int mac_close_device (PyCameraObject* self);
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
 
-//int mac_get_control();
-//int mac_set_control();
+int mac_get_control(PyCameraObject* self);
+int mac_set_control(PyCameraObject* self);
 
 PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);

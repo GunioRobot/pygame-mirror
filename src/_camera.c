@@ -195,6 +195,16 @@ PyObject* camera_start (PyCameraObject* self) {
     Py_RETURN_NONE;
 }
 
+/* start() - opens, inits, and starts capturing on the camera */
+PyObject* camera_pause (PyCameraObject* self) {
+#if defined(__unix__)
+    PY_RETURN_NONE;
+#elif defined(__APPLE__)
+    PY_RETURN_NONE;
+#endif
+    Py_RETURN_NONE;
+}
+
 /* stop() - stops capturing, uninits, and closes the camera */
 PyObject* camera_stop (PyCameraObject* self) {
 #if defined(__unix__)
@@ -1351,6 +1361,7 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 PyMethodDef cameraobj_builtins[] =
 {
     { "start", (PyCFunction) camera_start, METH_NOARGS, DOC_CAMERASTART },
+    { "pause", (PyCFunction) camera_start, METH_NOARGS, DOC_CAMERASTART },
     { "stop", (PyCFunction) camera_stop, METH_NOARGS, DOC_CAMERASTOP },
     { "get_controls", (PyCFunction) camera_get_controls, METH_NOARGS, DOC_CAMERAGETCONTROLS },
     { "set_controls", (PyCFunction) camera_set_controls, METH_KEYWORDS, DOC_CAMERASETCONTROLS },
