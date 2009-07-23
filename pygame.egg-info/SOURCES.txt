@@ -313,7 +313,7 @@ src/bufferproxy.c
 src/camera
 src/camera.doc
 src/camera.h
-src/camera_mac.h
+src/camera_controllers_mac.h
 src/camera_mac.m
 src/camera_mac_tmp2.m
 src/camera_v4l.c

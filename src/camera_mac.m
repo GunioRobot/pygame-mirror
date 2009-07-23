@@ -8,7 +8,6 @@
 // TODO: memory management in open, init and close
 
 #import "camera.h"
-#import <SDL.h>
 
 /* 
  * return: an array of the available cameras ids.
@@ -90,6 +89,25 @@ int mac_init_device(PyCameraObject* self) {
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError,
         "Cannot creates a sequence grabber channel and assigns a channel component to the channel");
+        return 0;
+    }
+    
+    //theErr = SGSettingsDialog (self->component, self->channel, 0, NULL, 0, NULL, 0);
+    
+    MatrixRecord* m = malloc(sizeof(MatrixRecord));
+    //m->matrix = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    memset(m->matrix, 0, sizeof(m->matrix));
+    m->matrix[0][0] = 1;
+    m->matrix[1][1] = 1;
+    m->matrix[0][2] = 1;
+    
+    //m->matrix[1] = {0, 1, 0};
+    //m->matrix[2] = {1, 0, 0};
+    
+    theErr = SGSetChannelMatrix(self->channel, m);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Matrix prop...");
         return 0;
     }
     
@@ -280,11 +298,12 @@ int mac_camera_idle(PyCameraObject* self) {
 int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     SDL_LockSurface(surf);
     
+    /*
     surf->format->Rmask = 0xff000000;
     surf->format->Gmask = 0x00ff0000;
     surf->format->Bmask = 0x0000ff00;
     surf->format->Amask = 0x000000ff;
-    
+    */
     
     /*
     surf->format->Bshift = 0xff000000;
