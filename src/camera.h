@@ -43,7 +43,7 @@
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
     #import <QuickTime/QuickTime.h>
-    #import <QuickTime/Movies.h>
+    //#import <QuickTime/Movies.h>
     //#import <Cocoa/Cocoa.h>
 #endif
 
@@ -88,9 +88,12 @@ typedef struct {
     SGChannel channel;              // Channel of the Sequence Grabber
     GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
-    long size;                      // size of the image in our buffer to draw
-    short bytes;                    //
     struct buffer pixels;
+    long size;                      // size of the image in our buffer to draw
+    int hflip;
+    int vflip;
+    int brightness;
+    short bytes;                    //
 } PyCameraObject;
 #endif
 
@@ -140,8 +143,8 @@ int mac_close_device (PyCameraObject* self);
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
 
-int mac_get_control(PyCameraObject* self);
-int mac_set_control(PyCameraObject* self);
+//int mac_get_control(PyCameraObject* self);
+//int mac_set_control(PyCameraObject* self);
 
 PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);
