@@ -124,6 +124,41 @@ int mac_init_device(PyCameraObject* self) {
         return 0;
 	};
 	
+    MatrixRecord matrix;
+    //matrix.matrix[0][0] = 0;
+	/*theErr = SGGetChannelMatrix(self->channel, &matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix");
+        return 0;
+    }*/
+    
+    FixedPoint source[4], dest[4];
+    Rect tmpRect = self->boundsRect;
+    tmpRect.left = self->boundsRect.right;
+    tmpRect.right = self->boundsRect.left;
+    RectMatrix(&matrix, &(self->boundsRect), &tmpRect);
+    
+    //source[0].x = Long2Fix(self->boundsRect->left);
+    //source[0].x = Long2Fix(self->boundsRect->left);
+    //QuadToQuadMatrix((Fixed *)source, (Fixed *)dest, matrix);
+    
+    
+    printf("matrix 0, 0: %d", matrix.matrix[1][1]);
+    //matrix.matrix[0][0] = 1;
+    //matrix.matrix[1][1] = 0;
+    //matrix.matrix[2][2] = 0;
+    //matrix.matrix[0][2] = 1;
+    //matrix.matrix[1][1] = 1;
+    //matrix.matrix[2][0] = 1;
+    theErr = SGSetChannelMatrix(self->channel, &matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix 2");
+        return 0;
+    }
+	
+	/*
 	MatrixRecord* matrix;
     theErr = SGGetChannelMatrix(self->channel, matrix);
     if (theErr != noErr) {
@@ -133,7 +168,7 @@ int mac_init_device(PyCameraObject* self) {
     }
     
     //m->matrix = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    /*
+    
     memset(m->matrix, 0, sizeof(m->matrix));
     matrix->matrix[0][0] = 1;
     matrix->matrix[1][1] = 1;
