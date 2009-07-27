@@ -94,23 +94,6 @@ int mac_init_device(PyCameraObject* self) {
     
     //theErr = SGSettingsDialog (self->component, self->channel, 0, NULL, 0, NULL, 0);
     
-    MatrixRecord* m = malloc(sizeof(MatrixRecord));
-    //m->matrix = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-    memset(m->matrix, 0, sizeof(m->matrix));
-    m->matrix[0][0] = 1;
-    m->matrix[1][1] = 1;
-    m->matrix[0][2] = 1;
-    
-    //m->matrix[1] = {0, 1, 0};
-    //m->matrix[2] = {1, 0, 0};
-    
-    theErr = SGSetChannelMatrix(self->channel, m);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError,
-        "Matrix prop...");
-        return 0;
-    }
-    
     theErr = SGSetChannelBounds(self->channel, &self->boundsRect);
     if (theErr != noErr) {
         PyErr_Format(PyExc_SystemError,
@@ -141,6 +124,29 @@ int mac_init_device(PyCameraObject* self) {
         return 0;
 	};
 	
+	MatrixRecord* matrix;
+    theErr = SGGetChannelMatrix(self->channel, matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix");
+        return 0;
+    }
+    
+    //m->matrix = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    /*
+    memset(m->matrix, 0, sizeof(m->matrix));
+    matrix->matrix[0][0] = 1;
+    matrix->matrix[1][1] = 1;
+    matrix->matrix[0][2] = 1;
+    */
+    /*
+    theErr = SGSetChannelMatrix(self->channel, matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Matrix prop...");
+        //return 0;
+    }
+	*/
     self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
 	
