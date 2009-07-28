@@ -24,9 +24,9 @@ def test1():
             if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                 going = False
     
-        print 'get image begin'
+        #print 'get image begin'
         snapshot = c.get_image() #snapshot)
-        print 'get image stop'
+        #print 'get image stop'
         display.blit(snapshot, (0, 0))
         pygame.display.flip()
 

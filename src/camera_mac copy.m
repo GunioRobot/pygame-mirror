@@ -122,74 +122,67 @@ int mac_init_device(PyCameraObject* self) {
         PyErr_Format(PyExc_SystemError,
         "Cannot adjust the speed and quality with which the sequence grabber displays data from a channel");
         return 0;
-	}
+	};
 	
 	
-    MatrixRecordPtr matrix;
-    short i, j;
-    Fixed minusOne = Long2Fix(-1L);
-    Fixed PlusOne = Long2Fix(1L);
-    Fixed zero = Long2Fix(0L);
-
-    if (true) {
-        printf("View = flip\n");
-        // err = SGGetChannelMatrix(videoChannel, &mat);
-        // keyPrint("return from get matrix = %d\n", err);
-        if (!(matrix = malloc(sizeof(MatrixRecord)))) {
-            printf(" malloc failed for MatrixRecord.\n");
-            return;
-        }
-        matrix->matrix[0][0] = zero;
-        matrix->matrix[0][1] = zero;
-        matrix->matrix[0][2] = zero;
-
-        matrix->matrix[1][0] = zero;
-        matrix->matrix[1][1] = zero;
-        matrix->matrix[1][2] = zero;
-
-        matrix->matrix[2][0] = (Fract) 0x00000000L;
-        matrix->matrix[2][1] = (Fract) 0x00000000L;
-        matrix->matrix[2][2] = (Fract) 0x00000000L;
-        
-        theErr = SGGetChannelMatrix(self->channel, matrix);
-        
-        for (i=0; i<3; ++i)
-            for (j=0; j<3; ++j)
-                printf("matrix->matrix[%d][%d] = %d\n", i, j, matrix->matrix[i][j]);
-        printf("return from get matrix = %d\n", theErr);
-        
-        ScaleMatrix(matrix, fixed1, minusOne, 0, 0);
-        TranslateMatrix(matrix, Long2Fix(self->boundsRect.right), 0);
-        
-        /*
-        theErr = SGSetChannelMatrix(self->channel, matrix);
-        printf("return from set matrix = %d\n", theErr);
-        
-        
-        matrix->matrix[0][0] = PlusOne;
-        matrix->matrix[0][1] = zero;
-        matrix->matrix[0][2] = zero;
-
-        matrix->matrix[1][0] = zero;
-        matrix->matrix[1][1] = PlusOne;
-        matrix->matrix[1][2] = zero;
-
-        matrix->matrix[2][0] = (Fract) 0x00000000L;
-        matrix->matrix[2][1] = (Fract) 0x00000000L;
-        matrix->matrix[2][2] = fract1;
-        */
-
-        for (i=0; i<3; ++i)
-            for (j=0; j<3; ++j)
-                printf("matrix->matrix[%d][%d] = %d\n", i, j, matrix->matrix[i][j]);
-        
-        theErr = SGSetChannelMatrix(self->channel, matrix);
-        printf("return from set matrix = %d\n", theErr);
-        SGVideoDigitizerChanged(self->channel);
-    } else {
-        printf("View = normal\n");
+    MatrixRecord matrix;
+    //matrix.matrix[0][0] = 0;
+	/*theErr = SGGetChannelMatrix(self->channel, &matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix");
+        return 0;
+    }*/
+    
+    FixedPoint source[4], dest[4];
+    Rect tmpRect = self->boundsRect;
+    tmpRect.left = self->boundsRect.right;
+    tmpRect.right = self->boundsRect.left;
+    RectMatrix(&matrix, &(self->boundsRect), &tmpRect);
+    
+    //source[0].x = Long2Fix(self->boundsRect->left);
+    //source[0].x = Long2Fix(self->boundsRect->left);
+    //QuadToQuadMatrix((Fixed *)source, (Fixed *)dest, matrix);
+    
+    
+    printf("matrix 0, 0: %d", matrix.matrix[1][1]);
+    //matrix.matrix[0][0] = 1;
+    //matrix.matrix[1][1] = 0;
+    //matrix.matrix[2][2] = 0;
+    //matrix.matrix[0][2] = 1;
+    //matrix.matrix[1][1] = 1;
+    //matrix.matrix[2][0] = 1;
+    theErr = SGSetChannelMatrix(self->channel, &matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix 2");
+        return 0;
     }
 	
+	/*
+	MatrixRecord* matrix;
+    theErr = SGGetChannelMatrix(self->channel, matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Cannot retrieves a channel's display transformation matrix");
+        return 0;
+    }
+    
+    //m->matrix = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    
+    memset(m->matrix, 0, sizeof(m->matrix));
+    matrix->matrix[0][0] = 1;
+    matrix->matrix[1][1] = 1;
+    matrix->matrix[0][2] = 1;
+    */
+    /*
+    theErr = SGSetChannelMatrix(self->channel, matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "Matrix prop...");
+        //return 0;
+    }
+	*/
     self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
 	
