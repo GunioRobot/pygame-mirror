@@ -346,22 +346,9 @@ int mac_camera_idle(PyCameraObject* self) {
  * If nesesary it addjust the masks of the surface to fit the rgb layout of the gworld. */
 int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
     SDL_LockSurface(surf);
-    
-    /*
-    surf->format->Rmask = 0xff000000;
-    surf->format->Gmask = 0x00ff0000;
-    surf->format->Bmask = 0x0000ff00;
-    surf->format->Amask = 0x000000ff;
-    */
-    
-    /*
-    surf->format->Bshift = 0xff000000;
-    surf->format->Gshift = 0x00ff0000;
-    surf->format->Rshift = 0x0000ff00;
-    surf->format->Ashift = 0x000000ff;
-    */
 	
 	memcpy(surf->pixels, self->pixels.start, self->pixels.length);
+	
     SDL_UnlockSurface(surf);
     
     return 1;

@@ -1,103 +1,26 @@
-//memcpy (void * destination, const void * source, size_t num );
-//memcpy(surf->pixels, pixBaseAddr, pixels_wide*pixels_high*32);
+I don't think a transformation matrix is quite what you are looking
+for for these kinds of controls.  That is all done in software, post
+processing the image.  What I mean is controls that directly tell the
+hardware what it should be doing.  I'm not sure QT supports it though.
 
-//Uint8 index=*(Uint8 *)surf->pixels;
-//Uint8 color = (surf->format->palette->colors[index].r;
+I think the line you want to edit to fix the color stuff is
 
-/*
-Uint32 colour = SDL_MapRGB( surf->format, 255, 0, 0 );
-Uint32 *pixmem32;
+surf = SDL_CreateRGBSurface (0, self->boundsRect.right,
+self->boundsRect.bottom, 32, 0xFF<<16, //bij linux is het 24
+                                    0xFF<<8, 0xFF, 0);
 
-pixmem32 = (Uint32*) surf->pixels  + 0 + 0;
-*pixmem32 = colour;
+That is a 32 bit surface currently set up to be _RGB, and is the alpha
+channel.  The raw data you are pulling in might be something like
+BGRA, which could explain the red and green being swapped.  Does
+everything have a blue tint to it too?  You might try experimenting
+with stuff like:
 
-pixmem32 = (Uint32*) surf->pixels  + 0 + 1;
-*pixmem32 = colour;
+surf = SDL_CreateRGBSurface (0, self->boundsRect.right,
+self->boundsRect.bottom, 32, 0xFF<<24, 0xFF<<16, 0xFF<<8, 0xFF);
 
-pixmem32 = (Uint32*) surf->pixels  + 0 + 2;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 0 + 3;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 0 + 4;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 0 + 5;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 0 + 6;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 0 + 0;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 1 + 1;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 2 + 2;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 3 + 3;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 4 + 4;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 5 + 5;
-*pixmem32 = colour;
-
-pixmem32 = (Uint32*) surf->pixels  + 6 + 6;
-*pixmem32 = colour;
-SDL_UnlockSurface(surf);
-
-surf = surf2;
-*/
-
-
-
-
- /*
-    surf2 = SDL_CreateRGBSurfaceFrom(pixBaseAddr,                   //void *pixels,
-                                     pixels_wide,                   //int width,
-                                     pixels_high,                   //int height,
-                                     32,                            //int bitsPerPixel,
-                                     pixels_wide*32,               //int pitch, 
-                                     surf->format->Rmask,           //Uint32 Rmask,
-                                     surf->format->Gmask,           //Uint32 Gmask,
-                                     surf->format->Bmask,           //Uint32 Bmask,
-                                     surf->format->Amask);          //Uint32 Amask);                               
-    */
-            
-    /*
-    int row = 0;
-    int column;
-    Uint32 colour = SDL_MapRGB(surf->format, 255, 0, 0);
-    Uint32 *pixmem32;
-    while(row < pixels_wide) {
-        column = 0;
-        while(column < pixels_high) {
-            pixmem32 = (Uint32*) surf->pixels  + column*surf->pitch/4 + row;
-            *pixmem32 = colour;
-            column++;
-        }
-        row++;
-    }
-    */
-    
-    /*
-    Uint32 *dst, src;
-    row = 0;
-    while(row < pixels_wide) {
-        dst = (Uint32*) surf->pixels + row * pixmapRowBytes;
-        src = pixBaseAddr + row * pixmapRowBytes;
-        memcpy(dst, pixBaseAddr, pixmapRowBytes);
-        row++;
-    }
-<<<<<<< HEAD:tmp.txt
-    */
-=======
-    */
+Keep in mind though, as I have stated before, you really want to allow
+for the flexibility of different surface depths, not just 32 bit.
+This is more important than stuff like the transformation matrix.
 
 
 
