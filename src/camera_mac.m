@@ -65,7 +65,7 @@ int mac_open_device (PyCameraObject* self) {
 /* Make the Camera object ready for capturing images. */
 int mac_init_device(PyCameraObject* self) {
     OSErr theErr;
-    OSType pixelFormat = k32RGBAPixelFormat;
+    OSType pixelFormat = k24RGBPixelFormat;
     //OSType pixelFormat = k32ARGBPixelFormat;
     
     int rowlength = self->boundsRect.right * self->bytes;

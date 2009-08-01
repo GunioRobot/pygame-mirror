@@ -335,11 +335,11 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
                 0,
                 self->boundsRect.right,
                 self->boundsRect.bottom,
-                32,
+                24,
                 0xFF,
                 0xFF<<8,
                 0xFF<<16,
-                0xFF<<24);
+                0);
             
         } else {
             surf = PySurface_AsSurface(surfobj);
@@ -1469,7 +1469,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
         cameraobj->size = -1;
-        cameraobj->bytes = 4;
+        cameraobj->bytes = 3;
     }
     
     return (PyObject*)cameraobj;    
