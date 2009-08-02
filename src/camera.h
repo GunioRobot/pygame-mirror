@@ -42,8 +42,9 @@
     #include <linux/videodev.h>
     #include <linux/videodev2.h>
 #elif defined(__APPLE__)
-    #import <QuickTime/QuickTime.h>
-    #import <QuickTime/Movies.h>
+    #include <QuickTime/QuickTime.h>
+    #include <QuickTime/Movies.h>
+    #include <QuickTime/ImageCompression.h>
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -83,6 +84,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     char* device_name;              // unieke name of the device
+    unsigned int color_out;
     SeqGrabComponent component;     // A type used by the Sequence Grabber API
     SGChannel channel;              // Channel of the Sequence Grabber
     GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image

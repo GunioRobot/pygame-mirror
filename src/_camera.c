@@ -1461,6 +1461,17 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
     if (cameraobj) {
         cameraobj->device_name = (char*) malloc((strlen(dev_name)+1)*sizeof(char));
         strcpy(cameraobj->device_name, dev_name);
+        if (color) {
+            if (!strcmp(color, "YUV")) {
+                cameraobj->color_out = YUV_OUT;
+            } else if (!strcmp(color, "HSV")) {
+                cameraobj->color_out = HSV_OUT;
+            } else {
+                cameraobj->color_out = RGB_OUT;
+            }
+        } else {
+            cameraobj->color_out = RGB_OUT;
+        }
         cameraobj->component = NULL;
         cameraobj->channel = NULL;
         cameraobj->gworld = NULL;
@@ -1478,10 +1489,10 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
 
 /* Camera module definition */
 PyMethodDef camera_builtins[] = {
-    { "colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE },
-    { "list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS },
-    { "Camera", (PyCFunction) Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA },
-    { NULL, NULL, 0, NULL }
+    {"colorspace", surf_colorspace, METH_VARARGS, DOC_PYGAMECAMERACOLORSPACE },
+    {"list_cameras", list_cameras, METH_NOARGS, DOC_PYGAMECAMERALISTCAMERAS },
+    {"Camera", (PyCFunction) Camera, METH_VARARGS, DOC_PYGAMECAMERACAMERA },
+    {NULL, NULL, 0, NULL }
 };
  
 void init_camera(void) {

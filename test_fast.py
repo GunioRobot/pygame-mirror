@@ -29,6 +29,8 @@ def test1():
         #print 'get image stop'
         display.blit(snapshot, (0, 0))
         pygame.display.flip()
+        #raw = c.get_raw()
+        #print raw[1]
 
     c.stop()
 

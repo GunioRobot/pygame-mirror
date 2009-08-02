@@ -65,8 +65,17 @@ int mac_open_device (PyCameraObject* self) {
 /* Make the Camera object ready for capturing images. */
 int mac_init_device(PyCameraObject* self) {
     OSErr theErr;
-    OSType pixelFormat = k24RGBPixelFormat;
-    //OSType pixelFormat = k32ARGBPixelFormat;
+    OSType pixelFormat;
+    /*
+    if (self->color_out == YUV_OUT) {
+        pixelFormat = k24YUVPixelFormat;
+    } else if (self->color_out == HSV_OUT) {
+        pixelFormat = k24HSVPixelFormat;
+    } else {
+        pixelFormat = k24RGBPixelFormat;
+    }
+    */
+    pixelFormat = k24RGBPixelFormat;
     
     int rowlength = self->boundsRect.right * self->bytes;
 	
@@ -124,13 +133,40 @@ int mac_init_device(PyCameraObject* self) {
         return 0;
 	}
 	
-	
-    MatrixRecordPtr matrix;
+	/*
+    MatrixRecord matrix;
     short i, j;
     Fixed minusOne = Long2Fix(-1L);
     Fixed PlusOne = Long2Fix(1L);
     Fixed zero = Long2Fix(0L);
 
+    ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
+    
+    // retrieve a channelÕs current sample description, the channel returns a sample description that is
+    // appropriate to the type of data being captured
+    //theErr = SGGetChannelSampleDescription(self->channel, (Handle)imageDesc);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "SG sample description");
+        return 0;
+	}
+    
+    Rect dstRect;
+    dstRect.top = 0;
+    dstRect.left = 0;
+    dstRect.bottom = 200;
+    dstRect.right = 200;
+    
+	RectMatrix(&matrix, &self->boundsRect, &dstRect);
+	theErr = SGSetChannelMatrix(self->channel, &matrix);
+    if (theErr != noErr) {
+        PyErr_Format(PyExc_SystemError,
+        "set matrix fail");
+        return 0;
+	}
+	*/
+    
+    /*
     if (true) {
         printf("View = flip\n");
         // err = SGGetChannelMatrix(videoChannel, &mat);
@@ -161,7 +197,7 @@ int mac_init_device(PyCameraObject* self) {
         ScaleMatrix(matrix, fixed1, minusOne, 0, 0);
         TranslateMatrix(matrix, Long2Fix(self->boundsRect.right), 0);
         
-        /*
+        
         theErr = SGSetChannelMatrix(self->channel, matrix);
         printf("return from set matrix = %d\n", theErr);
         
@@ -177,7 +213,7 @@ int mac_init_device(PyCameraObject* self) {
         matrix->matrix[2][0] = (Fract) 0x00000000L;
         matrix->matrix[2][1] = (Fract) 0x00000000L;
         matrix->matrix[2][2] = fract1;
-        */
+        
 
         for (i=0; i<3; ++i)
             for (j=0; j<3; ++j)
@@ -189,6 +225,8 @@ int mac_init_device(PyCameraObject* self) {
     } else {
         printf("View = normal\n");
     }
+	*/
+	
 	
     self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
@@ -314,7 +352,7 @@ PyObject *mac_read_raw(PyCameraObject *self) {
         return 0;
     }
     
-    PyObject *raw = NULL;
+    PyObject *raw;
     PixMapHandle pixmap_handle = GetGWorldPixMap(self->gworld);
     LockPixels(pixmap_handle);
     raw = PyString_FromStringAndSize(self->pixels.start, self->pixels.length);

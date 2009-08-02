@@ -98,6 +98,8 @@ DEPS = [
     FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
     FrameworkDependency('COCOA', 'Cocoa.h', 'Cocoa', 'Cocoa'),
     FrameworkDependency('QUICKTIME', 'QuickTime.h', 'QuickTime', 'QuickTime'),
+    #FrameworkDependency('QUARTZCORE', 'QuartzCore/QuartzCore.h', 'QuartzCore', 'QuartzCore'),
+    FrameworkDependency('IMAGECOMPRESSION', 'ImageCompression.h', 'ImageCompression', 'ImageCompression'),
 ]
 
 

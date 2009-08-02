@@ -18,6 +18,7 @@ PORTMIDI = -lportmidi
 PORTTIME = -I/System/Library/Frameworks/CoreMidi.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "CoreMidi" -Xlinker "-F/System/Library/Frameworks/"
 COCOA = -I/System/Library/Frameworks/Cocoa.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "Cocoa" -Xlinker "-F/System/Library/Frameworks/"
 QUICKTIME = -I/System/Library/Frameworks/QuickTime.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuickTime" -Xlinker "-F/System/Library/Frameworks/"
+IMAGECOMPRESSION = -lI -lm -la -lg -le -lC -lo -lm -lp -lr -le -ls -ls -li -lo -ln
 
 DEBUG = -C-W -C-Wall
 #DEBUG = 

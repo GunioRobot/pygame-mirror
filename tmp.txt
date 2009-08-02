@@ -22,6 +22,38 @@ Keep in mind though, as I have stated before, you really want to allow
 for the flexibility of different surface depths, not just 32 bit.
 This is more important than stuff like the transformation matrix.
 
+/* Values for PixMap.pixelFormat (BE = Big Endian, LE = Little Endian)*/
+enum {
+                                        /* The original pixel formats supported by 32-bit Color Quickdraw*/
+  k1MonochromePixelFormat       = 0x00000001, /* 1 bit indexed*/
+  k2IndexedPixelFormat          = 0x00000002, /* 2 bit indexed*/
+  k4IndexedPixelFormat          = 0x00000004, /* 4 bit indexed*/
+  k8IndexedPixelFormat          = 0x00000008, /* 8 bit indexed*/
+  k16BE555PixelFormat           = 0x00000010, /* 16 bit BE rgb 555 (Mac)*/
+  k24RGBPixelFormat             = 0x00000018, /* 24 bit rgb */
+  k32ARGBPixelFormat            = 0x00000020, /* 32 bit argb    (Mac)*/
+                                        /* QuickTime additions*/
+  k1IndexedGrayPixelFormat      = 0x00000021, /* 1 bit indexed gray*/
+  k2IndexedGrayPixelFormat      = 0x00000022, /* 2 bit indexed gray*/
+  k4IndexedGrayPixelFormat      = 0x00000024, /* 4 bit indexed gray*/
+  k8IndexedGrayPixelFormat      = 0x00000028, /* 8 bit indexed gray*/
+  k16LE555PixelFormat           = 'L555', /* 16 bit LE rgb 555 (PC)*/
+  k16LE5551PixelFormat          = '5551', /* 16 bit LE rgb 5551*/
+  k16BE565PixelFormat           = 'B565', /* 16 bit BE rgb 565*/
+  k16LE565PixelFormat           = 'L565', /* 16 bit LE rgb 565*/
+  k24BGRPixelFormat             = '24BG', /* 24 bit bgr */
+  k32BGRAPixelFormat            = 'BGRA', /* 32 bit bgra    (Matrox)*/
+  k32ABGRPixelFormat            = 'ABGR', /* 32 bit abgr    */
+  k32RGBAPixelFormat            = 'RGBA', /* 32 bit rgba    */
+  kYUVSPixelFormat              = 'yuvs', /* YUV 4:2:2 byte ordering 16-unsigned = 'YUY2'*/
+  kYUVUPixelFormat              = 'yuvu', /* YUV 4:2:2 byte ordering 16-signed*/
+  kYVU9PixelFormat              = 'YVU9', /* YVU9 Planar    9*/
+  kYUV411PixelFormat            = 'Y411', /* YUV 4:1:1 Interleaved  16*/
+  kYVYU422PixelFormat           = 'YVYU', /* YVYU 4:2:2 byte ordering   16*/
+  kUYVY422PixelFormat           = 'UYVY', /* UYVY 4:2:2 byte ordering   16*/
+  kYUV211PixelFormat            = 'Y211', /* YUV 2:1:1 Packed   8*/
+  k2vuyPixelFormat              = '2vuy' /* UYVY 4:2:2 byte ordering   16*/
+};
 
 
 
