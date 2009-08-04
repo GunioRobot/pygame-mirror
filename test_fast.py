@@ -9,10 +9,14 @@ def test1():
     pygame.camera.init()
     
     size = (640, 480)
-    display = pygame.display.set_mode(size, 0)
+    depth = 24
+    format = 'rgb'
+    #format = 'yuv'
+    #format = 'hsb'
+    display = pygame.display.set_mode(size, 0, depth)
     snapshot = pygame.surface.Surface(size, 0, display)
     cameras = pygame.camera.list_cameras()
-    c = pygame.camera.Camera(cameras[0])
+    c = pygame.camera.Camera(cameras[0], size, format)
     clock = pygame.time.Clock()
     c.start()
     
@@ -23,14 +27,11 @@ def test1():
         for e in events:
             if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                 going = False
-    
-        #print 'get image begin'
+        
         snapshot = c.get_image() #snapshot)
-        #print 'get image stop'
         display.blit(snapshot, (0, 0))
         pygame.display.flip()
         #raw = c.get_raw()
-        #print raw[1]
 
     c.stop()
 

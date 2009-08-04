@@ -45,6 +45,10 @@
     #include <QuickTime/QuickTime.h>
     #include <QuickTime/Movies.h>
     #include <QuickTime/ImageCompression.h>
+    
+    #define V4L2_PIX_FMT_RGB24 'RGB3'
+    #define V4L2_PIX_FMT_RGB444 'R444'
+    #define V4L2_PIX_FMT_YUYV 'YUYV'
 #endif
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
@@ -84,6 +88,7 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     char* device_name;              // unieke name of the device
+    OSType pixelformat;
     unsigned int color_out;
     SeqGrabComponent component;     // A type used by the Sequence Grabber API
     SGChannel channel;              // Channel of the Sequence Grabber

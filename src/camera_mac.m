@@ -65,17 +65,13 @@ int mac_open_device (PyCameraObject* self) {
 /* Make the Camera object ready for capturing images. */
 int mac_init_device(PyCameraObject* self) {
     OSErr theErr;
-    OSType pixelFormat;
-    /*
-    if (self->color_out == YUV_OUT) {
-        pixelFormat = k24YUVPixelFormat;
-    } else if (self->color_out == HSV_OUT) {
-        pixelFormat = k24HSVPixelFormat;
-    } else {
-        pixelFormat = k24RGBPixelFormat;
-    }
-    */
-    pixelFormat = k24RGBPixelFormat;
+
+    if (self->color_out == YUV_OUT)
+        self->pixelformat = kYUVSPixelFormat;
+    else if (self->color_out == HSV_OUT)
+        self->pixelformat = k24RGBPixelFormat; 
+    else
+        self->pixelformat = k24RGBPixelFormat;
     
     int rowlength = self->boundsRect.right * self->bytes;
 	
@@ -232,7 +228,7 @@ int mac_init_device(PyCameraObject* self) {
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
 	
 	theErr = QTNewGWorldFromPtr(&self->gworld,
-								pixelFormat,
+								self->pixelformat,
                                 &self->boundsRect, 
                                 NULL, 
                                 NULL, 
@@ -363,10 +359,124 @@ PyObject *mac_read_raw(PyCameraObject *self) {
 /* Read a frame from the camera and copy it to a surface. */
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     if (mac_camera_idle(self) != 0) {
-        return mac_copy_gworld_to_surface(self, surf);
+        //return mac_copy_gworld_to_surface(self, surf);
+        return mac_process_image(self, self->pixels.start, self->pixels.length, surf);
     } else {
         return 0;
     }
+}
+
+int mac_process_image(PyCameraObject* self, const void *image, unsigned int buffer_size, SDL_Surface* surf) {
+    if (!surf)
+        return 0;
+    
+    SDL_LockSurface (surf);
+    
+    switch (self->pixelformat) {
+        case k24RGBPixelFormat:
+            if (buffer_size >= self->size * 3) {
+                switch (self->color_out) {
+                    case RGB_OUT:
+                        rgb24_to_rgb(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case HSV_OUT:
+                        rgb_to_hsv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
+                        break;
+                    case YUV_OUT:
+                        rgb_to_yuv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface(surf);
+                return 0;
+            }
+            break;
+        
+        //this isn't really necessary
+        case k16BE555PixelFormat:
+            if (buffer_size >= self->size * 2) {
+                switch (self->color_out) {
+                    case RGB_OUT:
+                        rgb444_to_rgb(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case HSV_OUT:
+                        rgb_to_hsv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB444, surf->format);
+                        break;
+                    case YUV_OUT:
+                        rgb_to_yuv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB444, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface (surf);
+                return 0;
+            }
+            break;
+        
+        case kYUVSPixelFormat:
+            if (buffer_size >= self->size * 2) {
+                switch (self->color_out) {
+                    case YUV_OUT:
+                        yuyv_to_yuv(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case RGB_OUT:
+                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        break;
+                    case HSV_OUT:
+                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUYV, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface (surf);
+                return 0;
+            }
+            break;
+        /* I don't use thse
+        case V4L2_PIX_FMT_SBGGR8:
+            if (buffer_size >= self->size) {
+                switch (self->color_out) {
+                    case RGB_OUT:
+                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
+                        break;
+                    case HSV_OUT:
+                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
+                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_SBGGR8, surf->format);
+                        break;
+                    case YUV_OUT:
+                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
+                        rgb_to_yuv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_SBGGR8, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface (surf);
+                return 0;
+            }
+            break;
+        
+        case V4L2_PIX_FMT_YUV420:
+            if (buffer_size >= (self->size * 3) / 2) {
+                switch (self->color_out) {
+                    case YUV_OUT:
+                        yuv420_to_yuv(image, surf->pixels, self->width, self->height, surf->format);
+                        break;
+                    case RGB_OUT:
+                        yuv420_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
+                        break;
+                    case HSV_OUT:
+                        yuv420_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
+                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUV420, surf->format);
+                        break;
+                }
+            } else {
+                SDL_UnlockSurface (surf);
+                return 0;
+            }
+            break;
+        */
+        
+    }
+    SDL_UnlockSurface (surf);
+    return 1;
 }
 
 /* Put the camera in idle mode. */

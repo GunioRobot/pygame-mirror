@@ -336,9 +336,9 @@ PyObject* camera_get_image (PyCameraObject* self, PyObject* arg) {
                 self->boundsRect.right,
                 self->boundsRect.bottom,
                 24,
-                0xFF,
-                0xFF<<8,
                 0xFF<<16,
+                0xFF<<8,
+                0xFF,
                 0);
             
         } else {
@@ -1479,7 +1479,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.left = 0;
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
-        cameraobj->size = -1;
+        cameraobj->size =  w * h;
         cameraobj->bytes = 3;
     }
     
