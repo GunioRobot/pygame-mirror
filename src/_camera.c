@@ -277,11 +277,11 @@ PyObject* camera_get_size (PyCameraObject* self) {
 }
 
 /* query_image() - checks if a frame is ready */
-PyObject* camera_query_image (PyCameraObject* self) {
+PyObject* camera_query_image(PyCameraObject* self) {
 #if defined(__unix__)
     return PyBool_FromLong(v4l2_query_buffer(self));
 #endif
-    Py_RETURN_NONE;
+    Py_RETURN_TRUE;
 }
 
 /* get_image() - returns an RGB Surface */

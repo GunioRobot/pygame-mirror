@@ -309,6 +309,7 @@ src/alphablit.c
 src/base.c
 src/bitmask.c
 src/bitmask.h
+src/bouncy_bal.py
 src/bufferproxy.c
 src/camera
 src/camera.doc
