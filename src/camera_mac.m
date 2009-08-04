@@ -366,6 +366,8 @@ int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     }
 }
 
+// TODO sometimes it is posible to directly grab the image in the desired pixel format,
+// but this format needs to be known at the beginning of the initiation of the camera.
 int mac_process_image(PyCameraObject* self, const void *image, unsigned int buffer_size, SDL_Surface* surf) {
     if (!surf)
         return 0;
