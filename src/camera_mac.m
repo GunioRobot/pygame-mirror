@@ -66,13 +66,15 @@ int mac_open_device (PyCameraObject* self) {
 int mac_init_device(PyCameraObject* self) {
     OSErr theErr;
 
-    if (self->color_out == YUV_OUT)
+    if (self->color_out == YUV_OUT) {
         self->pixelformat = kYUVSPixelFormat;
-    else if (self->color_out == HSV_OUT)
-        self->pixelformat = k24RGBPixelFormat; 
-    else
+        self->bytes = 2;
+    } else {
         self->pixelformat = k24RGBPixelFormat;
+        self->bytes = 3;
+    }
     
+    //self->bytes = 3;
     int rowlength = self->boundsRect.right * self->bytes;
 	
 	theErr = SGInitialize(self->component);
@@ -128,101 +130,6 @@ int mac_init_device(PyCameraObject* self) {
         "Cannot adjust the speed and quality with which the sequence grabber displays data from a channel");
         return 0;
 	}
-	
-	/*
-    MatrixRecord matrix;
-    short i, j;
-    Fixed minusOne = Long2Fix(-1L);
-    Fixed PlusOne = Long2Fix(1L);
-    Fixed zero = Long2Fix(0L);
-
-    ImageDescriptionHandle imageDesc = (ImageDescriptionHandle)NewHandle(0);
-    
-    // retrieve a channelÕs current sample description, the channel returns a sample description that is
-    // appropriate to the type of data being captured
-    //theErr = SGGetChannelSampleDescription(self->channel, (Handle)imageDesc);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError,
-        "SG sample description");
-        return 0;
-	}
-    
-    Rect dstRect;
-    dstRect.top = 0;
-    dstRect.left = 0;
-    dstRect.bottom = 200;
-    dstRect.right = 200;
-    
-	RectMatrix(&matrix, &self->boundsRect, &dstRect);
-	theErr = SGSetChannelMatrix(self->channel, &matrix);
-    if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError,
-        "set matrix fail");
-        return 0;
-	}
-	*/
-    
-    /*
-    if (true) {
-        printf("View = flip\n");
-        // err = SGGetChannelMatrix(videoChannel, &mat);
-        // keyPrint("return from get matrix = %d\n", err);
-        if (!(matrix = malloc(sizeof(MatrixRecord)))) {
-            printf(" malloc failed for MatrixRecord.\n");
-            return;
-        }
-        matrix->matrix[0][0] = zero;
-        matrix->matrix[0][1] = zero;
-        matrix->matrix[0][2] = zero;
-
-        matrix->matrix[1][0] = zero;
-        matrix->matrix[1][1] = zero;
-        matrix->matrix[1][2] = zero;
-
-        matrix->matrix[2][0] = (Fract) 0x00000000L;
-        matrix->matrix[2][1] = (Fract) 0x00000000L;
-        matrix->matrix[2][2] = (Fract) 0x00000000L;
-        
-        theErr = SGGetChannelMatrix(self->channel, matrix);
-        
-        for (i=0; i<3; ++i)
-            for (j=0; j<3; ++j)
-                printf("matrix->matrix[%d][%d] = %d\n", i, j, matrix->matrix[i][j]);
-        printf("return from get matrix = %d\n", theErr);
-        
-        ScaleMatrix(matrix, fixed1, minusOne, 0, 0);
-        TranslateMatrix(matrix, Long2Fix(self->boundsRect.right), 0);
-        
-        
-        theErr = SGSetChannelMatrix(self->channel, matrix);
-        printf("return from set matrix = %d\n", theErr);
-        
-        
-        matrix->matrix[0][0] = PlusOne;
-        matrix->matrix[0][1] = zero;
-        matrix->matrix[0][2] = zero;
-
-        matrix->matrix[1][0] = zero;
-        matrix->matrix[1][1] = PlusOne;
-        matrix->matrix[1][2] = zero;
-
-        matrix->matrix[2][0] = (Fract) 0x00000000L;
-        matrix->matrix[2][1] = (Fract) 0x00000000L;
-        matrix->matrix[2][2] = fract1;
-        
-
-        for (i=0; i<3; ++i)
-            for (j=0; j<3; ++j)
-                printf("matrix->matrix[%d][%d] = %d\n", i, j, matrix->matrix[i][j]);
-        
-        theErr = SGSetChannelMatrix(self->channel, matrix);
-        printf("return from set matrix = %d\n", theErr);
-        SGVideoDigitizerChanged(self->channel);
-    } else {
-        printf("View = normal\n");
-    }
-	*/
-	
 	
     self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
@@ -372,6 +279,23 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
     if (!surf)
         return 0;
     
+    
+    printf("hello 1\n");
+    //self->pixels.start = _flip_image(self, 0, 0);
+    int i, j;
+    //i = boundsRect.right - 3;
+    void* new_pixels = malloc(self->pixels.length);
+    for(j=0; j<self->boundsRect.bottom; j++) {
+        for(i = self->boundsRect.right - 3; i>=self->boundsRect.right; i-3) {
+            memcpy(new_pixels+i+(j*self->boundsRect.right), self->pixels.start+(j*self->boundsRect.right), 3);
+        }
+    }
+    printf("hello 2\n");
+    //free(self->pixels.start);
+    self->pixels.start = new_pixels;
+    image = new_pixels;
+    printf("hello 3\n");
+    
     SDL_LockSurface (surf);
     
     switch (self->pixelformat) {
@@ -390,26 +314,6 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
                 }
             } else {
                 SDL_UnlockSurface(surf);
-                return 0;
-            }
-            break;
-        
-        //this isn't really necessary
-        case k16BE555PixelFormat:
-            if (buffer_size >= self->size * 2) {
-                switch (self->color_out) {
-                    case RGB_OUT:
-                        rgb444_to_rgb(image, surf->pixels, self->size, surf->format);
-                        break;
-                    case HSV_OUT:
-                        rgb_to_hsv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB444, surf->format);
-                        break;
-                    case YUV_OUT:
-                        rgb_to_yuv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB444, surf->format);
-                        break;
-                }
-            } else {
-                SDL_UnlockSurface (surf);
                 return 0;
             }
             break;
@@ -433,51 +337,9 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
                 return 0;
             }
             break;
-        /* I don't use thse
-        case V4L2_PIX_FMT_SBGGR8:
-            if (buffer_size >= self->size) {
-                switch (self->color_out) {
-                    case RGB_OUT:
-                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
-                        break;
-                    case HSV_OUT:
-                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
-                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_SBGGR8, surf->format);
-                        break;
-                    case YUV_OUT:
-                        sbggr8_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
-                        rgb_to_yuv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_SBGGR8, surf->format);
-                        break;
-                }
-            } else {
-                SDL_UnlockSurface (surf);
-                return 0;
-            }
-            break;
-        
-        case V4L2_PIX_FMT_YUV420:
-            if (buffer_size >= (self->size * 3) / 2) {
-                switch (self->color_out) {
-                    case YUV_OUT:
-                        yuv420_to_yuv(image, surf->pixels, self->width, self->height, surf->format);
-                        break;
-                    case RGB_OUT:
-                        yuv420_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
-                        break;
-                    case HSV_OUT:
-                        yuv420_to_rgb(image, surf->pixels, self->width, self->height, surf->format);
-                        rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUV420, surf->format);
-                        break;
-                }
-            } else {
-                SDL_UnlockSurface (surf);
-                return 0;
-            }
-            break;
-        */
-        
     }
     SDL_UnlockSurface (surf);
+    printf("hello 4\n");
     return 1;
 }
 

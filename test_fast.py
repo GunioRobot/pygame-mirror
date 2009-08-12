@@ -10,9 +10,9 @@ def test1():
     
     size = (640, 480)
     depth = 24
-    format = 'rgb'
-    #format = 'yuv'
-    #format = 'hsb'
+    format = 'RGB'
+    #format = 'YUV'
+    #format = 'HSV'
     display = pygame.display.set_mode(size, 0, depth)
     snapshot = pygame.surface.Surface(size, 0, display)
     cameras = pygame.camera.list_cameras()
@@ -28,7 +28,8 @@ def test1():
             if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                 going = False
         
-        snapshot = c.get_image() #snapshot)
+        snapshot_tmp = c.get_image() #snapshot)
+        #snapshot = pygame.transform.flip(snapshot_tmp, True, False)
         display.blit(snapshot, (0, 0))
         pygame.display.flip()
         #raw = c.get_raw()

@@ -95,6 +95,8 @@ typedef struct {
     GWorldPtr gworld;               // Pointer to the struct that holds the data of the captured image
     Rect boundsRect;                // bounds of the image frame
     long size;                      // size of the image in our buffer to draw
+    int hflip;
+    int vflip;
     short bytes;                    //
     struct buffer pixels;
 } PyCameraObject;
@@ -146,8 +148,8 @@ int mac_close_device (PyCameraObject* self);
 int mac_start_capturing(PyCameraObject* self);
 int mac_stop_capturing (PyCameraObject* self);
 
-//int mac_get_control();
-//int mac_set_control();
+int mac_get_control(PyCameraObject* self, int id, int* value);
+int mac_set_control(PyCameraObject* self, int id, int value);
 
 PyObject *mac_read_raw();
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf);

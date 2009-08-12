@@ -18,7 +18,7 @@ PORTMIDI = -lportmidi
 PORTTIME = -I/System/Library/Frameworks/CoreMidi.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "CoreMidi" -Xlinker "-F/System/Library/Frameworks/"
 COCOA = -I/System/Library/Frameworks/Cocoa.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "Cocoa" -Xlinker "-F/System/Library/Frameworks/"
 QUICKTIME = -I/System/Library/Frameworks/QuickTime.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuickTime" -Xlinker "-F/System/Library/Frameworks/"
-QUARTZCORE = -I/System/Library/Frameworks/QuartzCore.framework/Versions/Current/Headers -Xlinker "-framework" -Xlinker "QuartzCore" -Xlinker "-F/System/Library/Frameworks/"
+IMAGECOMPRESSION = -lI -lm -la -lg -le -lC -lo -lm -lp -lr -le -ls -ls -li -lo -ln
 
 DEBUG = -C-W -C-Wall
 #DEBUG = 
@@ -36,7 +36,7 @@ _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 #scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 #_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
-_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m $(SDL) $(DEBUG)
+_camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c src/camera_mac.m src/camera_controllers_mac.m $(SDL) $(DEBUG)
 #pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 GFX = src/SDL_gfx/SDL_gfxPrimitives.c 

@@ -88,6 +88,7 @@ class VideoCapturePlayer(object):
            for e in events:
                if e.type == KEYDOWN:
                    pygame.time.wait(2000)
+                   #pygame.time.wait(2)
                    self.calibrate()
                    going = False
            self.calibrate()

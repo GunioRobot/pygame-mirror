@@ -27,6 +27,7 @@ run_tests.py
 setup.py
 setup_win_common.py
 test_fast.py
+test_game.py
 docs/LGPL
 docs/howto_release_pygame.txt
 docs/index.html
@@ -314,7 +315,7 @@ src/bufferproxy.c
 src/camera
 src/camera.doc
 src/camera.h
-src/camera_controllers_mac.h
+src/camera_controllers_mac.m
 src/camera_mac copy.m
 src/camera_mac.m
 src/camera_mac_tmp2.m
