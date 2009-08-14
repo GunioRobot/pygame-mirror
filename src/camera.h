@@ -97,7 +97,7 @@ typedef struct {
     long size;                      // size of the image in our buffer to draw
     int hflip;
     int vflip;
-    short bytes;                    //
+    short depth;                    //
     struct buffer pixels;
 } PyCameraObject;
 #endif
@@ -115,6 +115,7 @@ void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* forma
 void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
 void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
 void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_PixelFormat* format);
+void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip);
 
 #if defined(__unix__)
 /* internal functions specific to v4l2 */

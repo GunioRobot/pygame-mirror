@@ -1365,6 +1365,24 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 
 }
 
+/* Flips the image array horizontally and/or vertically by reverse copying
+ * a 'depth' number of bytes to flipped_image.*/
+/* speed up.... */
+void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
+    int i, j;
+    void* tmp_image = image;
+    int pixel_size = width*depth;
+    for(i=0; i<height-1; i++) {
+        for(j=0; j<width-1; j++) {
+            memcpy(flipped_image+pixel_size-j*depth,
+                   tmp_image+j*depth,
+                   depth);
+        }
+        tmp_image += pixel_size;
+        flipped_image += pixel_size;
+    }
+}
+
 /*
  * Python API stuff
  */

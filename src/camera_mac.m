@@ -68,14 +68,14 @@ int mac_init_device(PyCameraObject* self) {
 
     if (self->color_out == YUV_OUT) {
         self->pixelformat = kYUVSPixelFormat;
-        self->bytes = 2;
+        self->depth = 2;
     } else {
         self->pixelformat = k24RGBPixelFormat;
-        self->bytes = 3;
+        self->depth = 3;
     }
     
     //self->bytes = 3;
-    int rowlength = self->boundsRect.right * self->bytes;
+    int rowlength = self->boundsRect.right * self->depth;
 	
 	theErr = SGInitialize(self->component);
     if (theErr != noErr) {
@@ -131,7 +131,7 @@ int mac_init_device(PyCameraObject* self) {
         return 0;
 	}
 	
-    self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->bytes;
+    self->pixels.length = self->boundsRect.right * self->boundsRect.bottom * self->depth;
 	self->pixels.start = (unsigned char*) malloc(self->pixels.length);
 	
 	theErr = QTNewGWorldFromPtr(&self->gworld,
@@ -279,41 +279,35 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
     if (!surf)
         return 0;
     
-    
-    printf("hello 1\n");
-    //self->pixels.start = _flip_image(self, 0, 0);
-    int i, j;
-    //i = boundsRect.right - 3;
     void* new_pixels = malloc(self->pixels.length);
-    for(j=0; j<self->boundsRect.bottom; j++) {
-        for(i = self->boundsRect.right - 3; i>=self->boundsRect.right; i-3) {
-            memcpy(new_pixels+i+(j*self->boundsRect.right), self->pixels.start+(j*self->boundsRect.right), 3);
-        }
-    }
-    printf("hello 2\n");
-    //free(self->pixels.start);
-    self->pixels.start = new_pixels;
-    image = new_pixels;
-    printf("hello 3\n");
+    memset(new_pixels, 125, self->pixels.length);
+    flip_image(self->pixels.start,
+               new_pixels,
+               self->boundsRect.right,
+               self->boundsRect.bottom,
+               self->depth,
+               self->hflip,
+               self->vflip);
     
-    SDL_LockSurface (surf);
+    SDL_LockSurface(surf);
     
     switch (self->pixelformat) {
         case k24RGBPixelFormat:
             if (buffer_size >= self->size * 3) {
                 switch (self->color_out) {
                     case RGB_OUT:
-                        rgb24_to_rgb(image, surf->pixels, self->size, surf->format);
+                        rgb24_to_rgb(new_pixels, surf->pixels, self->size, surf->format);
                         break;
                     case HSV_OUT:
-                        rgb_to_hsv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
+                        rgb_to_hsv(new_pixels, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
                         break;
                     case YUV_OUT:
-                        rgb_to_yuv(image, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
+                        rgb_to_yuv(new_pixels, surf->pixels, self->size, V4L2_PIX_FMT_RGB24, surf->format);
                         break;
                 }
             } else {
                 SDL_UnlockSurface(surf);
+                free(new_pixels);
                 return 0;
             }
             break;
@@ -322,24 +316,26 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
             if (buffer_size >= self->size * 2) {
                 switch (self->color_out) {
                     case YUV_OUT:
-                        yuyv_to_yuv(image, surf->pixels, self->size, surf->format);
+                        yuyv_to_yuv(new_pixels, surf->pixels, self->size, surf->format);
                         break;
                     case RGB_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        yuyv_to_rgb(new_pixels, surf->pixels, self->size, surf->format);
                         break;
                     case HSV_OUT:
-                        yuyv_to_rgb(image, surf->pixels, self->size, surf->format);
+                        yuyv_to_rgb(new_pixels, surf->pixels, self->size, surf->format);
                         rgb_to_hsv(surf->pixels, surf->pixels, self->size, V4L2_PIX_FMT_YUYV, surf->format);
                         break;
                 }
             } else {
-                SDL_UnlockSurface (surf);
+                SDL_UnlockSurface(surf);
+                free(new_pixels);
                 return 0;
             }
             break;
     }
-    SDL_UnlockSurface (surf);
-    printf("hello 4\n");
+    SDL_UnlockSurface(surf);
+    free(new_pixels);
+    
     return 1;
 }
 
@@ -350,18 +346,6 @@ int mac_camera_idle(PyCameraObject* self) {
         PyErr_Format(PyExc_SystemError, "SGIdle failed");
         return 0;
     }
-    
-    return 1;
-}
-
-/* Copy the data from a gworld into an SDL_Surface.
- * If nesesary it addjust the masks of the surface to fit the rgb layout of the gworld. */
-int mac_copy_gworld_to_surface(PyCameraObject* self, SDL_Surface* surf) {
-    SDL_LockSurface(surf);
-	
-	memcpy(surf->pixels, self->pixels.start, self->pixels.length);
-	
-    SDL_UnlockSurface(surf);
     
     return 1;
 }

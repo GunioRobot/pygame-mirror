@@ -30,7 +30,7 @@ def test1():
         
         snapshot_tmp = c.get_image() #snapshot)
         #snapshot = pygame.transform.flip(snapshot_tmp, True, False)
-        display.blit(snapshot, (0, 0))
+        display.blit(snapshot_tmp, (0, 0))
         pygame.display.flip()
         #raw = c.get_raw()
 
