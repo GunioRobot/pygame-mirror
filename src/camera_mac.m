@@ -280,14 +280,14 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
         return 0;
     
     void* new_pixels = malloc(self->pixels.length);
-    memset(new_pixels, 125, self->pixels.length);
+    memset(new_pixels, 255, self->pixels.length);
     flip_image(self->pixels.start,
                new_pixels,
                self->boundsRect.right,
                self->boundsRect.bottom,
                self->depth,
-               self->hflip,
-               self->vflip);
+               false,
+               true);
     
     SDL_LockSurface(surf);
     
@@ -334,7 +334,9 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
             break;
     }
     SDL_UnlockSurface(surf);
+    printf("hallo 3\n");
     free(new_pixels);
+    printf("hallo 4\n");
     
     return 1;
 }

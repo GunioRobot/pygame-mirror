@@ -1369,17 +1369,45 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
  * a 'depth' number of bytes to flipped_image.*/
 /* speed up.... */
 void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
-    int i, j;
     void* tmp_image = image;
-    int pixel_size = width*depth;
-    for(i=0; i<height-1; i++) {
-        for(j=0; j<width-1; j++) {
-            memcpy(flipped_image+pixel_size-j*depth,
-                   tmp_image+j*depth,
-                   depth);
+    if (hflip == false && vflip == true) {
+        int i, j;
+        int width_size = width*depth;
+        
+        for(i=0; i<=height-1; i++) {
+            for(j=0; j<=width; j++) {
+                memcpy(flipped_image+width_size-j*depth-3,
+                       tmp_image+j*depth,
+                       depth);
+            }
+            tmp_image += width_size;
+            flipped_image += width_size;
         }
-        tmp_image += pixel_size;
-        flipped_image += pixel_size;
+    } else if (hflip == true && vflip == false) {
+        int i;
+        int width_size = width*depth;
+        tmp_image = flipped_image+width_size*height;
+        
+        for(i=0; i<height; i++) {
+            tmp_image -= width_size;
+            memcpy(tmp_image, image+i*width_size, width_size);
+        }
+    } else if (hflip == true && vflip == true) {
+        int i, j;
+        int width_size = width*depth;
+        tmp_image += width_size*height;
+    
+        for(i=0; i<=height-1; i++) {
+            tmp_image -= width_size;
+            for(j=0; j<=width; j++) {
+                memcpy(tmp_image+width_size-j*depth-3,
+                       tmp_image+j*depth,
+                       depth);
+            }
+            tmp_image += width_size;
+        }
+    } else {
+        memcpy(flipped_image, image, height*width*depth);
     }
 }
 
@@ -1512,6 +1540,8 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg) {
         cameraobj->boundsRect.bottom = h;
         cameraobj->boundsRect.right = w;
         cameraobj->size =  w * h;
+        cameraobj->hflip = false;
+        cameraobj->vflip = false;
     }
     
     return (PyObject*)cameraobj;    
