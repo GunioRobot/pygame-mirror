@@ -5,8 +5,6 @@
 //  Copyright (c) 2009 . All rights reserved.
 //
 
-// TODO: memory management in open, init and close
-
 #import "camera.h"
 
 /* 
@@ -47,14 +45,16 @@ int mac_open_device (PyCameraObject* self) {
     // Initialize movie toolbox
     theErr = EnterMovies();
     if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Cannot initializes the Movie Toolbox");
+        PyErr_Format(PyExc_SystemError,
+        "Cannot initializes the Movie Toolbox");
         return 0;
     }
     
     // Open camera component
     SeqGrabComponent component = OpenComponent((Component) atoi(self->device_name));
     if (component == NULL) {
-        PyErr_Format(PyExc_SystemError, "Cannot open '%s'", self->device_name);
+        PyErr_Format(PyExc_SystemError,
+        "Cannot open '%s'", self->device_name);
         return 0;
     }
     self->component = component;
@@ -237,7 +237,8 @@ int mac_close_device (PyCameraObject* self) {
 int mac_stop_capturing (PyCameraObject* self) {
     OSErr theErr = SGStop(self->component);
     if (theErr != noErr) {
-        PyErr_Format(PyExc_SystemError, "Could not stop the sequence grabber with previewing");
+        PyErr_Format(PyExc_SystemError,
+        "Could not stop the sequence grabber with previewing");
         return 0;
     }
     return 1;
@@ -246,7 +247,8 @@ int mac_stop_capturing (PyCameraObject* self) {
 /* Read a frame, and put the raw data into a python string. */
 PyObject *mac_read_raw(PyCameraObject *self) {
     if (self->gworld == NULL) {
-        PyErr_Format(PyExc_SystemError, "Cannot set convert gworld to surface because gworls is 0");
+        PyErr_Format(PyExc_SystemError,
+        "Cannot set convert gworld to surface because gworls is 0");
         return 0;
     }
     
@@ -265,7 +267,6 @@ PyObject *mac_read_raw(PyCameraObject *self) {
 /* Read a frame from the camera and copy it to a surface. */
 int mac_read_frame(PyCameraObject* self, SDL_Surface* surf) {
     if (mac_camera_idle(self) != 0) {
-        //return mac_copy_gworld_to_surface(self, surf);
         return mac_process_image(self, self->pixels.start, self->pixels.length, surf);
     } else {
         return 0;

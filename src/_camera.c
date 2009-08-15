@@ -1393,13 +1393,11 @@ void flip_image(const void* image, void* flipped_image, int width, int height, s
             memcpy(tmp_image, image+i*width_size, width_size);
         }
     } else if (hflip == true && vflip == true) {
-        memset(flipped_image, 255, width*height*depth);
         int i, j;
         int width_size = width*depth;
         void* tmp_image = flipped_image + width_size*height;
     
         for(i=0; i<=height-1; i++) {
-            //tmp_image -= width_size;
             for(j=0; j<=width; j++) {
                 memcpy(tmp_image-j*depth-3,
                        image+j*depth,
