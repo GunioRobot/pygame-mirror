@@ -74,7 +74,6 @@ int mac_init_device(PyCameraObject* self) {
         self->depth = 3;
     }
     
-    //self->bytes = 3;
     int rowlength = self->boundsRect.right * self->depth;
 	
 	theErr = SGInitialize(self->component);
@@ -279,15 +278,19 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
     if (!surf)
         return 0;
     
-    void* new_pixels = malloc(self->pixels.length);
-    memset(new_pixels, 255, self->pixels.length);
-    flip_image(self->pixels.start,
-               new_pixels,
-               self->boundsRect.right,
-               self->boundsRect.bottom,
-               self->depth,
-               false,
-               true);
+    void* new_pixels;
+    if (self->hflip || self->vflip) {
+        new_pixels = malloc(self->pixels.length);
+        flip_image(self->pixels.start,
+                   new_pixels,
+                   self->boundsRect.right,
+                   self->boundsRect.bottom,
+                   self->depth,
+                   self->hflip,
+                   self->vflip);
+    } else {
+        new_pixels = image;
+    }
     
     SDL_LockSurface(surf);
     
@@ -334,9 +337,8 @@ int mac_process_image(PyCameraObject* self, const void *image, unsigned int buff
             break;
     }
     SDL_UnlockSurface(surf);
-    printf("hallo 3\n");
-    free(new_pixels);
-    printf("hallo 4\n");
+    if (self->hflip || self->vflip)
+        free(new_pixels);
     
     return 1;
 }

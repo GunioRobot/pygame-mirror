@@ -229,7 +229,7 @@ PyObject* camera_get_controls (PyCameraObject* self) {
     
     return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 #elif defined(__APPLE__)
-    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyBool_FromLong(0));
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
@@ -267,15 +267,15 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
     camera_get_controls(self);
     hflip = self->hflip;
     vflip = self->vflip;
-    //brightness = self->brightness;
+    brightness = -1;
     
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|ii", kwids, &hflip, &vflip))
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
         return NULL;
         
     self->hflip = hflip;
     self->vflip = vflip;
            
-    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(0));
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(-1));
 #endif
     Py_RETURN_NONE;
 }
