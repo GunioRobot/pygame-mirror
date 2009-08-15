@@ -19,7 +19,7 @@ def test1():
     c = pygame.camera.Camera(cameras[0], size, format)
     clock = pygame.time.Clock()
     print c.get_controls()
-    c.set_controls(hflip=False, vflip=True)
+    c.set_controls(hflip=True, vflip=True)
     c.start()
     
     going = True

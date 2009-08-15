@@ -1369,10 +1369,10 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
  * a 'depth' number of bytes to flipped_image.*/
 /* speed up.... */
 void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
-    void* tmp_image = image;
     if (hflip == false && vflip == true) {
         int i, j;
         int width_size = width*depth;
+        void* tmp_image = image;
         
         for(i=0; i<=height-1; i++) {
             for(j=0; j<=width; j++) {
@@ -1386,25 +1386,27 @@ void flip_image(const void* image, void* flipped_image, int width, int height, s
     } else if (hflip == true && vflip == false) {
         int i;
         int width_size = width*depth;
-        tmp_image = flipped_image+width_size*height;
+        void* tmp_image = flipped_image+width_size*height;
         
         for(i=0; i<height; i++) {
             tmp_image -= width_size;
             memcpy(tmp_image, image+i*width_size, width_size);
         }
     } else if (hflip == true && vflip == true) {
+        memset(flipped_image, 255, width*height*depth);
         int i, j;
         int width_size = width*depth;
-        tmp_image += width_size*height;
+        void* tmp_image = flipped_image + width_size*height;
     
         for(i=0; i<=height-1; i++) {
-            tmp_image -= width_size;
+            //tmp_image -= width_size;
             for(j=0; j<=width; j++) {
-                memcpy(tmp_image+width_size-j*depth-3,
-                       tmp_image+j*depth,
+                memcpy(tmp_image-j*depth-3,
+                       image+j*depth,
                        depth);
             }
-            tmp_image += width_size;
+            tmp_image -= width_size;
+            image += width_size;
         }
     } else {
         memcpy(flipped_image, image, height*width*depth);
@@ -1416,8 +1418,7 @@ void flip_image(const void* image, void* flipped_image, int width, int height, s
  */
 
 /* Camera class definition */
-PyMethodDef cameraobj_builtins[] =
-{
+PyMethodDef cameraobj_builtins[] = {
     { "start", (PyCFunction) camera_start, METH_NOARGS, DOC_CAMERASTART },
     { "stop", (PyCFunction) camera_stop, METH_NOARGS, DOC_CAMERASTOP },
     { "get_controls", (PyCFunction) camera_get_controls, METH_NOARGS, DOC_CAMERAGETCONTROLS },
