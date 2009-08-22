@@ -26,7 +26,6 @@ readme.txt
 run_tests.py
 setup.py
 setup_win_common.py
-test_fast.py
 docs/LGPL
 docs/howto_release_pygame.txt
 docs/index.html
@@ -301,6 +300,7 @@ pygame.egg-info/PKG-INFO
 pygame.egg-info/SOURCES.txt
 pygame.egg-info/dependency_links.txt
 pygame.egg-info/top_level.txt
+src/.DS_Store
 src/_arraysurfarray.c
 src/_camera.c
 src/_numericsndarray.c
@@ -314,9 +314,7 @@ src/bufferproxy.c
 src/camera
 src/camera.doc
 src/camera.h
-src/camera_mac copy.m
 src/camera_mac.m
-src/camera_mac_tmp2.m
 src/camera_v4l.c
 src/camera_v4l2.c
 src/cdrom.c
