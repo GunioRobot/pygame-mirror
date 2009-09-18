@@ -98,7 +98,8 @@ typedef struct {
     int hflip;
     int vflip;
     short depth;                    //
-    struct buffer pixels;
+    struct buffer pixels;           //
+    //struct buffer tmp_pixels        // place where the flipped image in temporarly stored if hflip or vflip is true.
 } PyCameraObject;
 #endif
 
