@@ -1367,7 +1367,7 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
 
 /* Flips the image array horizontally and/or vertically by reverse copying
  * a 'depth' number of bytes to flipped_image.*/
-/* speed up... */
+/* todo speed up... */
 void flip_image(const void* image, void* flipped_image, int width, int height, short depth, bool hflip, bool vflip) {
     if (hflip == false && vflip == true) {
         int i, j;
